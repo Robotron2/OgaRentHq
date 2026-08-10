@@ -615,4 +615,177 @@ contract OgaRentEscrowTest is EscrowTestBase {
         vm.expectRevert("OgaRent: invalid state");
         escrow.claimCaution();
     }
+
+    // =========================================================================
+    // Phase 7 — Dispute Lifecycle
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // raiseDispute() — Success & Auth
+    // -------------------------------------------------------------------------
+
+    function test_raiseDispute_fromFunded_byTenant_succeeds() public {
+        _fund();
+        vm.prank(tenant);
+        escrow.raiseDispute();
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Disputed));
+    }
+
+    function test_raiseDispute_fromFunded_byLandlord_succeeds() public {
+        _fund();
+        vm.prank(landlord);
+        escrow.raiseDispute();
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Disputed));
+    }
+
+    function test_raiseDispute_fromOccupied_byTenant_succeeds() public {
+        _occupy();
+        vm.prank(tenant);
+        escrow.raiseDispute();
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Disputed));
+    }
+
+    function test_raiseDispute_fromOccupied_byLandlord_succeeds() public {
+        _occupy();
+        vm.prank(landlord);
+        escrow.raiseDispute();
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Disputed));
+    }
+
+    function test_raiseDispute_emitsDisputeRaised() public {
+        _fund();
+        vm.expectEmit(true, false, false, true, address(escrow));
+        emit DisputeRaised(tenant, IOgaRentEscrow.EscrowState.Funded);
+        vm.prank(tenant);
+        escrow.raiseDispute();
+    }
+
+    function test_raiseDispute_revertsIfStranger() public {
+        _fund();
+        vm.prank(stranger);
+        vm.expectRevert("OgaRent: not tenant or landlord");
+        escrow.raiseDispute();
+    }
+
+    function test_raiseDispute_revertsIfAdmin() public {
+        _fund();
+        vm.prank(admin);
+        vm.expectRevert("OgaRent: not tenant or landlord");
+        escrow.raiseDispute();
+    }
+
+    // -------------------------------------------------------------------------
+    // resolveDispute() — Success & Auth
+    // -------------------------------------------------------------------------
+
+    function test_resolveDispute_revertsIfNotAdmin() public {
+        _disputeFromFunded();
+        vm.prank(stranger);
+        vm.expectRevert("OgaRent: not admin");
+        escrow.resolveDispute(true);
+    }
+
+    function test_resolveDispute_revertsIfNotDisputed() public {
+        _fund(); // Not disputed yet
+        vm.prank(admin);
+        vm.expectRevert("OgaRent: invalid state");
+        escrow.resolveDispute(true);
+    }
+
+    // -------------------------------------------------------------------------
+    // resolveDispute() — Routing & Balances (from Funded)
+    // -------------------------------------------------------------------------
+    // If disputed from Funded, escrow holds rentAmount + agentFee + cautionDeposit.
+
+    function test_resolveDispute_fromFunded_paysLandlord() public {
+        _disputeFromFunded();
+        uint256 landlordBefore = token.balanceOf(landlord);
+        
+        vm.expectEmit(true, true, false, true, address(escrow));
+        emit DisputeResolved(admin, landlord, TOTAL_DEPOSIT, true);
+
+        vm.prank(admin);
+        escrow.resolveDispute(true);
+
+        assertEq(token.balanceOf(landlord), landlordBefore + TOTAL_DEPOSIT);
+        assertEq(token.balanceOf(address(escrow)), 0);
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Completed));
+    }
+
+    function test_resolveDispute_fromFunded_paysTenant() public {
+        _disputeFromFunded();
+        uint256 tenantBefore = token.balanceOf(tenant);
+        
+        vm.expectEmit(true, true, false, true, address(escrow));
+        emit DisputeResolved(admin, tenant, TOTAL_DEPOSIT, false);
+
+        vm.prank(admin);
+        escrow.resolveDispute(false);
+
+        assertEq(token.balanceOf(tenant), tenantBefore + TOTAL_DEPOSIT);
+        assertEq(token.balanceOf(address(escrow)), 0);
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Completed));
+    }
+
+    // -------------------------------------------------------------------------
+    // resolveDispute() — Routing & Balances (from Occupied)
+    // -------------------------------------------------------------------------
+    // If disputed from Occupied, escrow holds only cautionDeposit.
+
+    function test_resolveDispute_fromOccupied_paysLandlord() public {
+        _disputeFromOccupied();
+        uint256 landlordBefore = token.balanceOf(landlord);
+        
+        vm.expectEmit(true, true, false, true, address(escrow));
+        emit DisputeResolved(admin, landlord, CAUTION_DEPOSIT, true);
+
+        vm.prank(admin);
+        escrow.resolveDispute(true);
+
+        assertEq(token.balanceOf(landlord), landlordBefore + CAUTION_DEPOSIT);
+        assertEq(token.balanceOf(address(escrow)), 0);
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Completed));
+    }
+
+    function test_resolveDispute_fromOccupied_paysTenant() public {
+        _disputeFromOccupied();
+        uint256 tenantBefore = token.balanceOf(tenant);
+        
+        vm.expectEmit(true, true, false, true, address(escrow));
+        emit DisputeResolved(admin, tenant, CAUTION_DEPOSIT, false);
+
+        vm.prank(admin);
+        escrow.resolveDispute(false);
+
+        assertEq(token.balanceOf(tenant), tenantBefore + CAUTION_DEPOSIT);
+        assertEq(token.balanceOf(address(escrow)), 0);
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Completed));
+    }
+
+    // -------------------------------------------------------------------------
+    // Terminal state replay guards
+    // -------------------------------------------------------------------------
+
+    function test_raiseDispute_revertsIfCompleted() public {
+        // Run happy path to completion
+        _occupy();
+        vm.warp(escrow.occupancyTimestamp() + 365 days + 1);
+        vm.prank(tenant);
+        escrow.claimCaution(); // State is now Completed
+
+        vm.prank(tenant);
+        vm.expectRevert("OgaRent: invalid state");
+        escrow.raiseDispute();
+    }
+
+    function test_resolveDispute_revertsIfCompleted() public {
+        // Run dispute path to completion
+        _disputeFromFunded();
+        vm.prank(admin);
+        escrow.resolveDispute(true); // State is now Completed
+
+        vm.prank(admin);
+        vm.expectRevert("OgaRent: invalid state");
+        escrow.resolveDispute(true);
+    }
 }

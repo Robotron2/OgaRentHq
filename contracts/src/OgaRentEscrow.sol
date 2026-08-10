@@ -196,14 +196,52 @@ contract OgaRentEscrow is IOgaRentEscrow, ReentrancyGuard {
         IERC20(_config.token).safeTransfer(_config.landlord, _config.rentAmount);
     }
 
-    /// @inheritdoc IOgaRentEscrow
+    /**
+     * @notice Raises a dispute, pausing fund distribution pending admin resolution.
+     * @dev Caller must be the tenant or landlord. State must be Funded or Occupied.
+     *      No funds are moved by this call.
+     */
     function raiseDispute() external override nonReentrant {
-        revert("OgaRent: not implemented");
+        // Checks
+        require(
+            _state == EscrowState.Funded || _state == EscrowState.Occupied,
+            "OgaRent: invalid state"
+        );
+        require(
+            msg.sender == _config.tenant || msg.sender == _config.landlord,
+            "OgaRent: not tenant or landlord"
+        );
+
+        EscrowState previousState = _state;
+
+        // Effects
+        _state = EscrowState.Disputed;
+        emit DisputeRaised(msg.sender, previousState);
     }
 
-    /// @inheritdoc IOgaRentEscrow
-    function resolveDispute(bool) external override nonReentrant {
-        revert("OgaRent: not implemented");
+    /**
+     * @notice Resolves an active dispute by distributing all remaining funds.
+     * @dev Caller must be the platformAdmin. State must be Disputed.
+     *      Transfers the entire remaining escrow token balance to either the
+     *      landlord (payLandlord == true) or the tenant (payLandlord == false).
+     * @param payLandlord If true, remaining balance goes to landlord; otherwise to tenant.
+     */
+    function resolveDispute(bool payLandlord) external override nonReentrant {
+        // Checks
+        require(_state == EscrowState.Disputed, "OgaRent: invalid state");
+        require(msg.sender == _config.platformAdmin, "OgaRent: not admin");
+
+        uint256 remainingBalance = IERC20(_config.token).balanceOf(address(this));
+        address recipient = payLandlord ? _config.landlord : _config.tenant;
+
+        // Effects
+        _state = EscrowState.Completed;
+        emit DisputeResolved(msg.sender, recipient, remainingBalance, payLandlord);
+
+        // Interactions
+        if (remainingBalance > 0) {
+            IERC20(_config.token).safeTransfer(recipient, remainingBalance);
+        }
     }
 
     /**
