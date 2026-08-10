@@ -141,9 +141,31 @@ contract OgaRentEscrow is IOgaRentEscrow, ReentrancyGuard {
     // Placeholder stubs — implemented in Phase 4–7
     // =========================================================================
 
-    /// @inheritdoc IOgaRentEscrow
+    /**
+     * @notice Allows the tenant to deposit the full rental amount into escrow.
+     *
+     * @dev Caller must be the tenant. State must be Created.
+     *      Requires a prior ERC-20 approval of (rentAmount + agentFee + cautionDeposit)
+     *      from the tenant to this contract address.
+     *
+     *      Checks-Effects-Interactions:
+     *        1. Check: state guard and caller identity
+     *        2. Effect: transition state to Funded, emit event
+     *        3. Interact: pull tokens from tenant via safeTransferFrom
+     */
     function deposit() external override nonReentrant {
-        revert("OgaRent: not implemented");
+        // Checks
+        require(_state == EscrowState.Created, "OgaRent: invalid state");
+        require(msg.sender == _config.tenant, "OgaRent: not tenant");
+
+        uint256 total = _config.rentAmount + _config.agentFee + _config.cautionDeposit;
+
+        // Effects
+        _state = EscrowState.Funded;
+        emit RentDeposited(msg.sender, total);
+
+        // Interactions
+        IERC20(_config.token).safeTransferFrom(msg.sender, address(this), total);
     }
 
     /// @inheritdoc IOgaRentEscrow

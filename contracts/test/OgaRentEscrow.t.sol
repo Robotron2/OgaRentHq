@@ -205,4 +205,173 @@ contract OgaRentEscrowTest is EscrowTestBase {
         escrow.initialize(cfg);
         assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Created));
     }
+
+    // =========================================================================
+    // Phase 4 — Deposit
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // Success
+    // -------------------------------------------------------------------------
+
+    function test_deposit_succeeds() public {
+        _initialize();
+
+        vm.startPrank(tenant);
+        token.approve(address(escrow), TOTAL_DEPOSIT);
+        escrow.deposit();
+        vm.stopPrank();
+
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Funded));
+    }
+
+    function test_deposit_transfersExactTokensToEscrow() public {
+        _initialize();
+
+        uint256 tenantBefore  = token.balanceOf(tenant);
+        uint256 escrowBefore  = token.balanceOf(address(escrow));
+
+        vm.startPrank(tenant);
+        token.approve(address(escrow), TOTAL_DEPOSIT);
+        escrow.deposit();
+        vm.stopPrank();
+
+        assertEq(token.balanceOf(tenant),         tenantBefore - TOTAL_DEPOSIT);
+        assertEq(token.balanceOf(address(escrow)), escrowBefore + TOTAL_DEPOSIT);
+    }
+
+    function test_deposit_escrowBalanceEqualsTotal() public {
+        _initialize();
+
+        vm.startPrank(tenant);
+        token.approve(address(escrow), TOTAL_DEPOSIT);
+        escrow.deposit();
+        vm.stopPrank();
+
+        assertEq(
+            token.balanceOf(address(escrow)),
+            RENT_AMOUNT + AGENT_FEE + CAUTION_DEPOSIT
+        );
+    }
+
+    function test_deposit_emitsRentDeposited() public {
+        _initialize();
+
+        vm.startPrank(tenant);
+        token.approve(address(escrow), TOTAL_DEPOSIT);
+
+        vm.expectEmit(true, false, false, true, address(escrow));
+        emit RentDeposited(tenant, TOTAL_DEPOSIT);
+
+        escrow.deposit();
+        vm.stopPrank();
+    }
+
+    // -------------------------------------------------------------------------
+    // Authorization
+    // -------------------------------------------------------------------------
+
+    function test_deposit_revertsIfNotTenant_stranger() public {
+        _initialize();
+
+        token.mint(stranger, TOTAL_DEPOSIT);
+        vm.startPrank(stranger);
+        token.approve(address(escrow), TOTAL_DEPOSIT);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.deposit();
+        vm.stopPrank();
+    }
+
+    function test_deposit_revertsIfNotTenant_landlord() public {
+        _initialize();
+
+        token.mint(landlord, TOTAL_DEPOSIT);
+        vm.startPrank(landlord);
+        token.approve(address(escrow), TOTAL_DEPOSIT);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.deposit();
+        vm.stopPrank();
+    }
+
+    function test_deposit_revertsIfNotTenant_admin() public {
+        _initialize();
+
+        token.mint(admin, TOTAL_DEPOSIT);
+        vm.startPrank(admin);
+        token.approve(address(escrow), TOTAL_DEPOSIT);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.deposit();
+        vm.stopPrank();
+    }
+
+    // -------------------------------------------------------------------------
+    // State machine
+    // -------------------------------------------------------------------------
+
+    function test_deposit_revertsIfDepositedTwice() public {
+        _fund(); // advances to Funded via _initialize + deposit
+
+        vm.startPrank(tenant);
+        token.approve(address(escrow), TOTAL_DEPOSIT);
+        vm.expectRevert("OgaRent: invalid state");
+        escrow.deposit();
+        vm.stopPrank();
+    }
+
+    function test_deposit_revertsIfNotInitialized() public {
+        // No initialize() called — state is Created (default enum 0)
+        // but config is empty, so tenant is address(0) → not tenant check fires
+        vm.prank(tenant);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.deposit();
+    }
+
+    // -------------------------------------------------------------------------
+    // ERC-20 approval
+    // -------------------------------------------------------------------------
+
+    function test_deposit_revertsWithoutApproval() public {
+        _initialize();
+
+        // No approve() call
+        vm.prank(tenant);
+        vm.expectRevert();
+        escrow.deposit();
+    }
+
+    function test_deposit_revertsWithInsufficientApproval() public {
+        _initialize();
+
+        vm.startPrank(tenant);
+        token.approve(address(escrow), TOTAL_DEPOSIT - 1); // one short
+        vm.expectRevert();
+        escrow.deposit();
+        vm.stopPrank();
+    }
+
+    function test_deposit_revertsWithZeroApproval() public {
+        _initialize();
+
+        vm.startPrank(tenant);
+        token.approve(address(escrow), 0);
+        vm.expectRevert();
+        escrow.deposit();
+        vm.stopPrank();
+    }
+
+    function test_deposit_revertsIfTenantHasInsufficientBalance() public {
+        // Deploy fresh escrow where tenant has less than total required
+        OgaRentEscrow poorEscrow = new OgaRentEscrow();
+        poorEscrow.initialize(_defaultConfig());
+
+        address poorTenant = makeAddr("poorTenant");
+        // Mint only half of what's needed
+        token.mint(poorTenant, TOTAL_DEPOSIT / 2);
+
+        vm.startPrank(poorTenant);
+        token.approve(address(poorEscrow), TOTAL_DEPOSIT);
+        vm.expectRevert();
+        poorEscrow.deposit();
+        vm.stopPrank();
+    }
 }
