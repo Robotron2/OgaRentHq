@@ -31,7 +31,8 @@ verify-testnet:
 		--rpc-url $(RPC_BOT_TESTNET) \
 		--broadcast \
 		--verify \
-		--verifier-url https://scan.bohr.life/api \
+		--verifier blockscout \
+		--verifier-url https://scan.bohr.life/api/ \
 		-vvvv
 
 # Deploy to BOT Chain Mainnet
