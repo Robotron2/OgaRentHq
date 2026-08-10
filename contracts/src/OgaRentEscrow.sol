@@ -206,8 +206,25 @@ contract OgaRentEscrow is IOgaRentEscrow, ReentrancyGuard {
         revert("OgaRent: not implemented");
     }
 
-    /// @inheritdoc IOgaRentEscrow
+    /**
+     * @notice Allows the tenant to claim the caution deposit after lease expiry.
+     * @dev Caller must be the tenant. State must be Occupied.
+     *      block.timestamp must be strictly greater than occupancyTimestamp + 365 days.
+     */
     function claimCaution() external override nonReentrant {
-        revert("OgaRent: not implemented");
+        // Checks
+        require(_state == EscrowState.Occupied, "OgaRent: invalid state");
+        require(msg.sender == _config.tenant, "OgaRent: not tenant");
+        require(
+            block.timestamp > occupancyTimestamp + LEASE_DURATION,
+            "OgaRent: timelock active"
+        );
+
+        // Effects
+        _state = EscrowState.Completed;
+        emit CautionClaimed(msg.sender, _config.cautionDeposit, block.timestamp);
+
+        // Interactions
+        IERC20(_config.token).safeTransfer(msg.sender, _config.cautionDeposit);
     }
 }

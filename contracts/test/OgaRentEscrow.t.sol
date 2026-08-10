@@ -480,4 +480,139 @@ contract OgaRentEscrowTest is EscrowTestBase {
         vm.expectRevert("OgaRent: invalid state");
         escrow.confirmOccupancy();
     }
+
+    // =========================================================================
+    // Phase 6 — Caution Timelock
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // Timelock Boundaries (LEASE_DURATION = 365 days)
+    // -------------------------------------------------------------------------
+
+    function test_claimCaution_beforeExpiry_reverts() public {
+        _occupy();
+        uint256 occupancyTime = escrow.occupancyTimestamp();
+
+        // One second before expiry
+        vm.warp(occupancyTime + 365 days - 1);
+
+        vm.prank(tenant);
+        vm.expectRevert("OgaRent: timelock active");
+        escrow.claimCaution();
+    }
+
+    function test_claimCaution_exactExpiry_reverts() public {
+        _occupy();
+        uint256 occupancyTime = escrow.occupancyTimestamp();
+
+        // Exactly at expiry (must be strictly greater)
+        vm.warp(occupancyTime + 365 days);
+
+        vm.prank(tenant);
+        vm.expectRevert("OgaRent: timelock active");
+        escrow.claimCaution();
+    }
+
+    function test_claimCaution_oneSecondAfterExpiry_succeeds() public {
+        _occupy();
+        uint256 occupancyTime = escrow.occupancyTimestamp();
+
+        // One second after expiry
+        vm.warp(occupancyTime + 365 days + 1);
+
+        vm.prank(tenant);
+        escrow.claimCaution();
+
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Completed));
+    }
+
+    // -------------------------------------------------------------------------
+    // Success & Balances
+    // -------------------------------------------------------------------------
+
+    function test_claimCaution_transfersCautionToTenant() public {
+        _occupy();
+        uint256 occupancyTime = escrow.occupancyTimestamp();
+        vm.warp(occupancyTime + 365 days + 1);
+
+        uint256 tenantBefore = token.balanceOf(tenant);
+        uint256 escrowBefore = token.balanceOf(address(escrow));
+
+        vm.prank(tenant);
+        escrow.claimCaution();
+
+        assertEq(token.balanceOf(tenant), tenantBefore + CAUTION_DEPOSIT);
+        assertEq(token.balanceOf(address(escrow)), escrowBefore - CAUTION_DEPOSIT);
+        assertEq(token.balanceOf(address(escrow)), 0); // Escrow should be empty
+    }
+
+    function test_claimCaution_emitsCautionClaimed() public {
+        _occupy();
+        uint256 occupancyTime = escrow.occupancyTimestamp();
+        uint256 claimTime = occupancyTime + 365 days + 1;
+        vm.warp(claimTime);
+
+        vm.expectEmit(true, false, false, true, address(escrow));
+        emit CautionClaimed(tenant, CAUTION_DEPOSIT, claimTime);
+
+        vm.prank(tenant);
+        escrow.claimCaution();
+    }
+
+    // -------------------------------------------------------------------------
+    // Authorization
+    // -------------------------------------------------------------------------
+
+    function test_claimCaution_revertsIfNotTenant_stranger() public {
+        _occupy();
+        vm.warp(escrow.occupancyTimestamp() + 365 days + 1);
+
+        vm.prank(stranger);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.claimCaution();
+    }
+
+    function test_claimCaution_revertsIfNotTenant_landlord() public {
+        _occupy();
+        vm.warp(escrow.occupancyTimestamp() + 365 days + 1);
+
+        vm.prank(landlord);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.claimCaution();
+    }
+
+    function test_claimCaution_revertsIfNotTenant_admin() public {
+        _occupy();
+        vm.warp(escrow.occupancyTimestamp() + 365 days + 1);
+
+        vm.prank(admin);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.claimCaution();
+    }
+
+    // -------------------------------------------------------------------------
+    // State machine
+    // -------------------------------------------------------------------------
+
+    function test_claimCaution_revertsIfCalledTwice() public {
+        _occupy();
+        vm.warp(escrow.occupancyTimestamp() + 365 days + 1);
+
+        vm.startPrank(tenant);
+        escrow.claimCaution();
+
+        vm.expectRevert("OgaRent: invalid state");
+        escrow.claimCaution();
+        vm.stopPrank();
+    }
+
+    function test_claimCaution_revertsIfNotOccupied_Funded() public {
+        _fund(); // State is Funded
+        // No occupancy timestamp yet, but warp way into the future just in case
+        vm.warp(block.timestamp + 1000 days);
+
+        vm.prank(tenant);
+        vm.expectRevert("OgaRent: invalid state");
+        escrow.claimCaution();
+    }
 }
