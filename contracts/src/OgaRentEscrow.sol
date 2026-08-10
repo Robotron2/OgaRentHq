@@ -168,9 +168,32 @@ contract OgaRentEscrow is IOgaRentEscrow, ReentrancyGuard {
         IERC20(_config.token).safeTransferFrom(msg.sender, address(this), total);
     }
 
-    /// @inheritdoc IOgaRentEscrow
+    /**
+     * @notice Allows the tenant to confirm successful move-in.
+     * @dev Caller must be the tenant. State must be Funded.
+     *      Releases agentFee to agent and rentAmount to landlord.
+     *      Locks cautionDeposit and starts the 365-day timelock.
+     */
     function confirmOccupancy() external override nonReentrant {
-        revert("OgaRent: not implemented");
+        // Checks
+        require(_state == EscrowState.Funded, "OgaRent: invalid state");
+        require(msg.sender == _config.tenant, "OgaRent: not tenant");
+
+        // Effects
+        _state = EscrowState.Occupied;
+        occupancyTimestamp = block.timestamp;
+
+        emit OccupancyConfirmed(
+            msg.sender,
+            _config.agentFee,
+            _config.rentAmount,
+            _config.cautionDeposit,
+            block.timestamp
+        );
+
+        // Interactions
+        IERC20(_config.token).safeTransfer(_config.agent, _config.agentFee);
+        IERC20(_config.token).safeTransfer(_config.landlord, _config.rentAmount);
     }
 
     /// @inheritdoc IOgaRentEscrow

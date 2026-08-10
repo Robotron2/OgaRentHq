@@ -374,4 +374,110 @@ contract OgaRentEscrowTest is EscrowTestBase {
         poorEscrow.deposit();
         vm.stopPrank();
     }
+
+    // =========================================================================
+    // Phase 5 — Occupancy Confirmation
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // Success
+    // -------------------------------------------------------------------------
+
+    function test_occupancy_succeeds() public {
+        _fund();
+
+        vm.prank(tenant);
+        escrow.confirmOccupancy();
+
+        assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Occupied));
+        assertEq(escrow.occupancyTimestamp(), block.timestamp);
+    }
+
+    function test_occupancy_transfersExactTokens() public {
+        _fund();
+
+        uint256 agentBefore = token.balanceOf(agent);
+        uint256 landlordBefore = token.balanceOf(landlord);
+        uint256 escrowBefore = token.balanceOf(address(escrow));
+
+        vm.prank(tenant);
+        escrow.confirmOccupancy();
+
+        // Agent gets fee
+        assertEq(token.balanceOf(agent), agentBefore + AGENT_FEE);
+        // Landlord gets rent
+        assertEq(token.balanceOf(landlord), landlordBefore + RENT_AMOUNT);
+        // Escrow loses rent + fee
+        assertEq(token.balanceOf(address(escrow)), escrowBefore - RENT_AMOUNT - AGENT_FEE);
+    }
+
+    function test_occupancy_escrowBalanceEqualsCautionDeposit() public {
+        _fund();
+
+        vm.prank(tenant);
+        escrow.confirmOccupancy();
+
+        // Only the caution deposit should remain locked
+        assertEq(token.balanceOf(address(escrow)), CAUTION_DEPOSIT);
+    }
+
+    function test_occupancy_emitsOccupancyConfirmed() public {
+        _fund();
+
+        vm.expectEmit(true, false, false, true, address(escrow));
+        emit OccupancyConfirmed(
+            tenant,
+            AGENT_FEE,
+            RENT_AMOUNT,
+            CAUTION_DEPOSIT,
+            block.timestamp
+        );
+
+        vm.prank(tenant);
+        escrow.confirmOccupancy();
+    }
+
+    // -------------------------------------------------------------------------
+    // Authorization
+    // -------------------------------------------------------------------------
+
+    function test_occupancy_revertsIfNotTenant_stranger() public {
+        _fund();
+        vm.prank(stranger);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.confirmOccupancy();
+    }
+
+    function test_occupancy_revertsIfNotTenant_landlord() public {
+        _fund();
+        vm.prank(landlord);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.confirmOccupancy();
+    }
+
+    function test_occupancy_revertsIfNotTenant_admin() public {
+        _fund();
+        vm.prank(admin);
+        vm.expectRevert("OgaRent: not tenant");
+        escrow.confirmOccupancy();
+    }
+
+    // -------------------------------------------------------------------------
+    // State machine
+    // -------------------------------------------------------------------------
+
+    function test_occupancy_revertsIfNotFunded_Created() public {
+        _initialize(); // State is Created
+        vm.prank(tenant);
+        vm.expectRevert("OgaRent: invalid state");
+        escrow.confirmOccupancy();
+    }
+
+    function test_occupancy_revertsIfCalledTwice() public {
+        _occupy(); // State is Occupied
+
+        vm.prank(tenant);
+        vm.expectRevert("OgaRent: invalid state");
+        escrow.confirmOccupancy();
+    }
 }
