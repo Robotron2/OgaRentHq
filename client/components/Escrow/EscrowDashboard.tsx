@@ -1,7 +1,7 @@
 'use client'
 
 import { useWallet } from '@/hooks/useWallet'
-import { useTenantEscrows } from '@/hooks/useFactory'
+import { useUserEscrows } from '@/hooks/useFactory'
 import { useEscrowDetails } from '@/hooks/useEscrow'
 import EscrowTimeline from './EscrowTimeline'
 import EscrowFinancials from './EscrowFinancials'
@@ -10,7 +10,7 @@ import Image from 'next/image'
 
 export default function EscrowDashboard() {
   const { address } = useWallet()
-  const { data: escrows, isLoading: isFactoryLoading } = useTenantEscrows(address)
+  const { data: escrows, isLoading: isFactoryLoading } = useUserEscrows(address)
   
   // Use the first escrow found, if any
   const activeEscrowAddress = escrows && escrows.length > 0 ? escrows[escrows.length - 1] : undefined
