@@ -8,14 +8,16 @@ import DepositModal from './DepositModal'
 import ConfirmOccupancyModal from './ConfirmOccupancyModal'
 import RaiseDisputeModal from './RaiseDisputeModal'
 import { useEscrowWrite } from '@/hooks/useEscrowWrite'
+import { EscrowRole } from '@/lib/evm/roles'
 
 interface ActionPanelProps {
   state: number | undefined
+  role?: EscrowRole
   escrowAddress: Address
   totalAmount?: bigint
 }
 
-export default function EscrowActionPanel({ state, escrowAddress, totalAmount = 0n }: ActionPanelProps) {
+export default function EscrowActionPanel({ state, role = 'NONE', escrowAddress, totalAmount = 0n }: ActionPanelProps) {
   const stateStr = state !== undefined ? stateMap[state] : undefined
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
   const [isConfirmOccupancyModalOpen, setIsConfirmOccupancyModalOpen] = useState(false)
@@ -62,21 +64,23 @@ export default function EscrowActionPanel({ state, escrowAddress, totalAmount = 
 
       <div className="flex flex-col gap-4">
         <button 
-          disabled={!stateStr || !['Created', 'Funded'].includes(stateStr)}
+          disabled={role !== 'TENANT' || !stateStr || !['Created', 'Funded'].includes(stateStr)}
           onClick={() => {
             if (stateStr === 'Created') setIsDepositModalOpen(true)
             if (stateStr === 'Funded') setIsConfirmOccupancyModalOpen(true)
           }}
           className={`w-full py-4 rounded-lg font-label-caps font-bold transition-colors shadow-sm ${
-            stateStr && ['Created', 'Funded'].includes(stateStr) 
+            role === 'TENANT' && stateStr && ['Created', 'Funded'].includes(stateStr) 
               ? 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container shadow-primary/20' 
               : 'bg-outline-variant/50 text-outline cursor-not-allowed'
           }`}
         >
-          {ctaLabel}
+          {role !== 'TENANT' && stateStr === 'Created' ? 'Waiting for Tenant Deposit' : 
+           role !== 'TENANT' && stateStr === 'Funded' ? 'Waiting for Tenant Confirmation' :
+           ctaLabel}
         </button>
 
-        {stateStr === 'Occupied' && (
+        {stateStr === 'Occupied' && role === 'TENANT' && (
           <button 
             onClick={() => executeAction(escrowAddress, 'claimCaution')}
             disabled={isClaimPending}

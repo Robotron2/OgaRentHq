@@ -14,7 +14,7 @@ interface EscrowDetailViewProps {
 }
 
 export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetailViewProps) {
-  const { config, state, occupancyTimestamp, isLoading } = useEscrowDetails(escrowAddress)
+  const { config, role, state, occupancyTimestamp, isLoading } = useEscrowDetails(escrowAddress)
   const totalAmount = config ? (config.rentAmount + config.agentFee + config.cautionDeposit) : 0n
 
   if (isLoading) {
@@ -58,12 +58,13 @@ export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetail
             agentFee={config?.agentFee} 
             cautionDeposit={config?.cautionDeposit} 
             occupancyTimestamp={occupancyTimestamp} 
+            role={role}
           />
         </div>
         
         <div className="lg:col-span-1">
           <div className="sticky top-32">
-            <EscrowActionPanel state={state} escrowAddress={escrowAddress} totalAmount={totalAmount} />
+            <EscrowActionPanel state={state} role={role} escrowAddress={escrowAddress} totalAmount={totalAmount} />
           </div>
         </div>
       </div>
