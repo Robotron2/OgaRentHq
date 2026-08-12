@@ -93,28 +93,7 @@ interface IOgaRentEscrow {
     // Events
     // =========================================================================
 
-    /**
-     * @notice Emitted when the escrow is successfully initialized.
-     * @dev Provides the full configuration for frontend indexing and judge verification.
-     * @param tenant         The tenant address.
-     * @param landlord       The landlord address.
-     * @param agent          The agent address.
-     * @param platformAdmin  The platform administrator address.
-     * @param token          The ERC-20 token address.
-     * @param rentAmount     The yearly rent amount.
-     * @param agentFee       The agent fee amount.
-     * @param cautionDeposit The caution deposit amount.
-     */
-    event EscrowInitialized(
-        address indexed tenant,
-        address indexed landlord,
-        address indexed agent,
-        address platformAdmin,
-        address token,
-        uint256 rentAmount,
-        uint256 agentFee,
-        uint256 cautionDeposit
-    );
+
 
     /**
      * @notice Emitted when the tenant successfully deposits funds into the escrow.
@@ -177,12 +156,7 @@ interface IOgaRentEscrow {
     // Functions
     // =========================================================================
 
-    /**
-     * @notice Initializes the escrow with the rental agreement configuration.
-     * @dev May only be called once. Caller is not restricted but double-init is blocked.
-     * @param config The complete escrow configuration.
-     */
-    function initialize(EscrowConfig calldata config) external;
+
 
     /**
      * @notice Allows the tenant to deposit the full rental amount into escrow.
