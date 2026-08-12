@@ -1,8 +1,11 @@
 import { useReadContracts } from 'wagmi'
 import { OgaRentEscrowABI } from '@/lib/evm/abis'
 import { Address } from 'viem'
+import { useWallet } from '@/hooks/useWallet'
+import { determineRole } from '@/lib/evm/roles'
 
 export function useEscrowDetails(escrowAddress: Address | undefined) {
+  const { address: walletAddress } = useWallet()
   const { data, isLoading, isError, refetch } = useReadContracts({
     contracts: [
       {
@@ -26,8 +29,12 @@ export function useEscrowDetails(escrowAddress: Address | undefined) {
     }
   })
 
+  const config = data?.[0].result as { tenant: Address; landlord: Address; agent: Address; platformAdmin: Address; token: Address; rentAmount: bigint; agentFee: bigint; cautionDeposit: bigint } | undefined
+  const role = determineRole(walletAddress, config)
+
   return {
-    config: data?.[0].result as { tenant: Address; landlord: Address; agent: Address; platformAdmin: Address; token: Address; rentAmount: bigint; agentFee: bigint; cautionDeposit: bigint } | undefined,
+    config,
+    role,
     state: data?.[1].result as number | undefined,
     occupancyTimestamp: data?.[2].result as bigint | undefined,
     isLoading,
