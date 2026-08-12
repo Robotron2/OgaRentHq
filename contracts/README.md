@@ -1,66 +1,35 @@
-## Foundry
+# OgaRent Smart Contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+OgaRent is a Web2.5 real-estate rental escrow protocol on BOT Chain.
 
-Foundry consists of:
+## Architecture
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+OgaRent uses a **Factory-based Multi-Escrow Architecture**. 
 
-## Documentation
+- `OgaRentFactory.sol`: The canonical protocol entry point. It is responsible for deploying independent escrow instances and maintaining on-chain discovery registries for frontends and indexers.
+- `OgaRentEscrow.sol`: The core logic contract representing a single rental agreement between a tenant and a landlord. Once deployed by the factory, it is completely independent and isolated from other escrows.
 
-https://book.getfoundry.sh/
+### Frontend & ABI Handoff
 
-## Usage
+Frontends must no longer deploy `OgaRentEscrow` directly. Instead, they must call `OgaRentFactory.createEscrow(...)` which deploys a new escrow instance, locks its configuration permanently, and returns its address.
+
+Indexers should listen for the `EscrowCreated` event emitted by the factory to discover new rental agreements. Frontends can also query the factory using `getEscrowsByTenant` and `getEscrowsByLandlord`.
+
+## Development
+
+This project uses [Foundry](https://book.getfoundry.sh/).
 
 ### Build
-
 ```shell
-$ forge build
+forge build
 ```
 
 ### Test
-
 ```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
+forge test
 ```
 
 ### Deploy
-
 ```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+forge script script/Deploy.s.sol:DeployScript --rpc-url <your_rpc_url> --private-key <your_private_key> --broadcast
 ```
