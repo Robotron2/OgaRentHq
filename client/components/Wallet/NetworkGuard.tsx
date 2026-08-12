@@ -2,11 +2,18 @@
 
 import { useWallet } from '@/hooks/useWallet'
 import { AlertCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 export default function NetworkGuard() {
   const { isConnected, isWrongNetwork, switchNetwork } = useWallet()
+  const [mounted, setMounted] = useState(false)
 
-  if (!isConnected || !isWrongNetwork) {
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true)
+  }, [])
+
+  if (!mounted || !isConnected || !isWrongNetwork) {
     return null
   }
 

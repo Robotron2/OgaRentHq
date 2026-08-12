@@ -10,7 +10,8 @@ export const OgaRentFactoryABI = parseAbi([
 ])
 
 export const OgaRentEscrowABI = parseAbi([
-  'function getConfig() view returns (tuple(address tenant, address landlord, address agent, address platformAdmin, address token, uint256 rentAmount, uint256 agentFee, uint256 cautionDeposit))',
+  'struct EscrowConfig { address tenant; address landlord; address agent; address platformAdmin; address token; uint256 rentAmount; uint256 agentFee; uint256 cautionDeposit; }',
+  'function getConfig() view returns (EscrowConfig)',
   'function getState() view returns (uint8)',
   'function occupancyTimestamp() view returns (uint256)',
   'function LEASE_DURATION() view returns (uint256)',

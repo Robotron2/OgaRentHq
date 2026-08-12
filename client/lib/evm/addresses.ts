@@ -10,9 +10,9 @@ export const CONTRACT_ADDRESSES = {
 }
 
 export const getFactoryAddress = (chainId: number = BOT_CHAIN_ID): Address => {
-  return CONTRACT_ADDRESSES[chainId]?.factory
+  return CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.factory
 }
 
 export const getTokenAddress = (chainId: number = BOT_CHAIN_ID): Address => {
-  return CONTRACT_ADDRESSES[chainId]?.mockUSDC
+  return CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.mockUSDC
 }

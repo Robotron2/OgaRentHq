@@ -9,7 +9,7 @@ import EscrowActionPanel from './EscrowActionPanel'
 import Image from 'next/image'
 
 export default function EscrowDashboard() {
-  const { address, isConnected } = useWallet()
+  const { address } = useWallet()
   const { data: escrows, isLoading: isFactoryLoading } = useTenantEscrows(address)
   
   // Use the first escrow found, if any
@@ -17,14 +17,6 @@ export default function EscrowDashboard() {
   
   const { config, state, occupancyTimestamp, isLoading: isEscrowLoading } = useEscrowDetails(activeEscrowAddress)
   const totalAmount = config ? (config.rentAmount + config.agentFee + config.cautionDeposit) : 0n
-
-  if (!isConnected) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <h2 className="font-headline-md text-primary">Connect Wallet to view your Dashboard</h2>
-      </div>
-    )
-  }
 
   if (isFactoryLoading) {
     return (
@@ -39,7 +31,7 @@ export default function EscrowDashboard() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 bg-white rounded-2xl border border-outline-variant/30 p-8 text-center max-w-lg mx-auto mt-12">
         <h2 className="font-headline-md text-primary">No Active Escrows</h2>
-        <p className="font-body-md text-on-surface-variant">You don't have any active rental agreements on this wallet. Contact your landlord or agent to initiate one.</p>
+        <p className="font-body-md text-on-surface-variant">You don&apos;t have any active rental agreements on this wallet. Contact your landlord or agent to initiate one.</p>
       </div>
     )
   }

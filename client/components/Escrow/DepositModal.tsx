@@ -52,8 +52,10 @@ export default function DepositModal({ isOpen, onClose, escrowAddress, totalAmou
   useEffect(() => {
     if (isOpen && allowance !== undefined && totalAmount > 0n) {
       if (allowance >= totalAmount || isApproveSuccess) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setStep(2)
       } else {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setStep(1)
       }
     }
