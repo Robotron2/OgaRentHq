@@ -56,9 +56,8 @@ contract EscrowTestBase is Test {
     // -------------------------------------------------------------------------
 
     function setUp() public virtual {
-        // Deploy contracts
+        // Deploy token
         token  = new MockUSDC();
-        escrow = new OgaRentEscrow();
 
         // Fund the tenant with test tokens
         token.mint(tenant, TENANT_START_BAL);
@@ -86,9 +85,9 @@ contract EscrowTestBase is Test {
     // Lifecycle helpers — advance escrow to a given state
     // -------------------------------------------------------------------------
 
-    /// @dev Initializes the escrow with the default config.
+    /// @dev Deploys the escrow with the default config.
     function _initialize() internal {
-        escrow.initialize(_defaultConfig());
+        escrow = new OgaRentEscrow(_defaultConfig());
     }
 
     /// @dev Initializes, approves, and deposits — advances to Funded.

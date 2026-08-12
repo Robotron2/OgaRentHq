@@ -46,9 +46,6 @@ contract OgaRentEscrow is IOgaRentEscrow, ReentrancyGuard {
     // Storage
     // =========================================================================
 
-    /// @dev Prevents double-initialization. Set to true on first initialize() call.
-    bool private _initialized;
-
     /// @notice The immutable configuration for this escrow agreement.
     EscrowConfig private _config;
 
@@ -67,13 +64,9 @@ contract OgaRentEscrow is IOgaRentEscrow, ReentrancyGuard {
     /**
      * @notice Initializes the escrow with the rental agreement configuration.
      *
-     * @dev May only be called once. There is no caller restriction on this function
-     *      itself — the initialization guard (_initialized) provides the security.
-     *      After initialization, the escrow state is Created and the configuration
-     *      is locked permanently.
+     * @dev The configuration is locked permanently upon deployment.
      *
      *      Validations enforced:
-     *        - Not already initialized
      *        - All role addresses are non-zero
      *        - Token address is non-zero
      *        - rentAmount > 0
@@ -83,10 +76,7 @@ contract OgaRentEscrow is IOgaRentEscrow, ReentrancyGuard {
      *
      * @param config The complete escrow configuration.
      */
-    function initialize(EscrowConfig calldata config) external override {
-        // Guard: prevent re-initialization
-        require(!_initialized, "OgaRent: already initialized");
-
+    constructor(EscrowConfig memory config) {
         // Validate role addresses
         require(config.tenant != address(0), "OgaRent: zero tenant");
         require(config.landlord != address(0), "OgaRent: zero landlord");
@@ -100,21 +90,9 @@ contract OgaRentEscrow is IOgaRentEscrow, ReentrancyGuard {
         require(config.cautionDeposit > 0, "OgaRent: zero caution");
         require(config.agentFee < config.rentAmount, "OgaRent: fee >= rent");
 
-        // Effects: mark initialized, store config, set initial state
-        _initialized = true;
+        // Effects: store config, set initial state
         _config = config;
         _state = EscrowState.Created;
-
-        emit EscrowInitialized(
-            config.tenant,
-            config.landlord,
-            config.agent,
-            config.platformAdmin,
-            config.token,
-            config.rentAmount,
-            config.agentFee,
-            config.cautionDeposit
-        );
     }
 
     // =========================================================================

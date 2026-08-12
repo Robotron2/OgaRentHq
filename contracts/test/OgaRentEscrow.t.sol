@@ -53,7 +53,7 @@ contract OgaRentEscrowTest is EscrowTestBase {
     // -------------------------------------------------------------------------
 
     function test_init_succeeds() public {
-        escrow.initialize(_defaultConfig());
+        _initialize();
 
         assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Created));
 
@@ -68,53 +68,19 @@ contract OgaRentEscrowTest is EscrowTestBase {
         assertEq(cfg.cautionDeposit, CAUTION_DEPOSIT);
     }
 
-    function test_init_emitsEscrowInitialized() public {
-        IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
-
-        vm.expectEmit(true, true, true, true, address(escrow));
-        emit EscrowInitialized(
-            cfg.tenant,
-            cfg.landlord,
-            cfg.agent,
-            cfg.platformAdmin,
-            cfg.token,
-            cfg.rentAmount,
-            cfg.agentFee,
-            cfg.cautionDeposit
-        );
-
-        escrow.initialize(cfg);
-    }
-
     function test_init_stateIsCreated() public {
-        escrow.initialize(_defaultConfig());
+        _initialize();
         assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Created));
     }
 
     function test_init_occupancyTimestampIsZero() public {
-        escrow.initialize(_defaultConfig());
+        _initialize();
         assertEq(escrow.occupancyTimestamp(), 0);
     }
 
-    function test_init_leaseDurationConstant() public view {
+    function test_init_leaseDurationConstant() public {
+        _initialize();
         assertEq(escrow.LEASE_DURATION(), 365 days);
-    }
-
-    // -------------------------------------------------------------------------
-    // Double initialization guard
-    // -------------------------------------------------------------------------
-
-    function test_init_revertsIfCalledTwice() public {
-        escrow.initialize(_defaultConfig());
-        vm.expectRevert("OgaRent: already initialized");
-        escrow.initialize(_defaultConfig());
-    }
-
-    function test_init_revertsIfCalledTwiceByStranger() public {
-        escrow.initialize(_defaultConfig());
-        vm.prank(stranger);
-        vm.expectRevert("OgaRent: already initialized");
-        escrow.initialize(_defaultConfig());
     }
 
     // -------------------------------------------------------------------------
@@ -125,35 +91,35 @@ contract OgaRentEscrowTest is EscrowTestBase {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.tenant = address(0);
         vm.expectRevert("OgaRent: zero tenant");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     function test_init_revertsOnZeroLandlord() public {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.landlord = address(0);
         vm.expectRevert("OgaRent: zero landlord");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     function test_init_revertsOnZeroAgent() public {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.agent = address(0);
         vm.expectRevert("OgaRent: zero agent");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     function test_init_revertsOnZeroAdmin() public {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.platformAdmin = address(0);
         vm.expectRevert("OgaRent: zero admin");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     function test_init_revertsOnZeroToken() public {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.token = address(0);
         vm.expectRevert("OgaRent: zero token");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     // -------------------------------------------------------------------------
@@ -164,21 +130,21 @@ contract OgaRentEscrowTest is EscrowTestBase {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.rentAmount = 0;
         vm.expectRevert("OgaRent: zero rent");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     function test_init_revertsOnZeroAgentFee() public {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.agentFee = 0;
         vm.expectRevert("OgaRent: zero agent fee");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     function test_init_revertsOnZeroCautionDeposit() public {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.cautionDeposit = 0;
         vm.expectRevert("OgaRent: zero caution");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     // -------------------------------------------------------------------------
@@ -189,20 +155,20 @@ contract OgaRentEscrowTest is EscrowTestBase {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.agentFee = cfg.rentAmount; // equal → revert
         vm.expectRevert("OgaRent: fee >= rent");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     function test_init_revertsIfAgentFeeExceedsRentAmount() public {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.agentFee = cfg.rentAmount + 1; // exceeds → revert
         vm.expectRevert("OgaRent: fee >= rent");
-        escrow.initialize(cfg);
+        new OgaRentEscrow(cfg);
     }
 
     function test_init_succeedsWhenAgentFeeIsOneLessThanRentAmount() public {
         IOgaRentEscrow.EscrowConfig memory cfg = _defaultConfig();
         cfg.agentFee = cfg.rentAmount - 1; // one below → ok
-        escrow.initialize(cfg);
+        escrow = new OgaRentEscrow(cfg);
         assertEq(uint256(escrow.getState()), uint256(IOgaRentEscrow.EscrowState.Created));
     }
 
@@ -318,14 +284,6 @@ contract OgaRentEscrowTest is EscrowTestBase {
         vm.stopPrank();
     }
 
-    function test_deposit_revertsIfNotInitialized() public {
-        // No initialize() called — state is Created (default enum 0)
-        // but config is empty, so tenant is address(0) → not tenant check fires
-        vm.prank(tenant);
-        vm.expectRevert("OgaRent: not tenant");
-        escrow.deposit();
-    }
-
     // -------------------------------------------------------------------------
     // ERC-20 approval
     // -------------------------------------------------------------------------
@@ -361,8 +319,7 @@ contract OgaRentEscrowTest is EscrowTestBase {
 
     function test_deposit_revertsIfTenantHasInsufficientBalance() public {
         // Deploy fresh escrow where tenant has less than total required
-        OgaRentEscrow poorEscrow = new OgaRentEscrow();
-        poorEscrow.initialize(_defaultConfig());
+        OgaRentEscrow poorEscrow = new OgaRentEscrow(_defaultConfig());
 
         address poorTenant = makeAddr("poorTenant");
         // Mint only half of what's needed
