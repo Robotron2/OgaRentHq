@@ -16,7 +16,7 @@ interface EscrowDetailViewProps {
 
 export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetailViewProps) {
   const { config, role, state, occupancyTimestamp, isLoading, refetch } = useEscrowDetails(escrowAddress)
-  const totalAmount = config ? (config.rentAmount + config.agentFee) : 0n
+  const totalAmount = config ? (config.rentAmount + config.agentFee + config.cautionDeposit) : 0n
 
   const property = config
     ? properties.find(p => p.landlordAddress.toLowerCase() === config.landlord.toLowerCase() && p.rentAmount === config.rentAmount)
