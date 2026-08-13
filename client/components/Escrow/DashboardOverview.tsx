@@ -8,7 +8,7 @@ interface DashboardOverviewProps {
 
 export default function DashboardOverview({ escrows }: DashboardOverviewProps) {
   const activeCount = escrows.filter(e => e.state !== undefined && e.state < 3).length
-  const completedCount = escrows.filter(e => e.state === 4).length
+  const occupiedCount = escrows.filter(e => e.state === 2).length
   const disputedCount = escrows.filter(e => e.state === 3).length
   
   const totalVolume = escrows.reduce((acc, curr) => {
@@ -34,8 +34,8 @@ export default function DashboardOverview({ escrows }: DashboardOverviewProps) {
       />
       <StatCard 
         icon={<CheckCircle2 size={20} className="text-green-600" />} 
-        label="Completed" 
-        value={completedCount.toString()} 
+        label="Occupied" 
+        value={occupiedCount.toString()} 
         bgClass="bg-green-50"
       />
       <StatCard 

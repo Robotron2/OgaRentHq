@@ -60,7 +60,7 @@ export default function EscrowDashboard() {
   }
 
   const activeEscrow = escrows.find(e => e.state !== undefined && e.state < 3 && e.role !== 'NONE') || (escrows.length > 0 ? escrows[0] : undefined)
-  const remainingEscrowAddresses = escrows.filter(e => e.address !== activeEscrow?.address).map(e => e.address)
+  const remainingEscrows = escrows.filter(e => e.address !== activeEscrow?.address)
 
   return (
     <div className="pb-20 relative max-w-6xl mx-auto">
@@ -77,10 +77,10 @@ export default function EscrowDashboard() {
         />
       )}
 
-      {remainingEscrowAddresses.length > 0 && (
+      {remainingEscrows.length > 0 && (
         <EscrowList 
-          escrows={remainingEscrowAddresses} 
-          onSelect={(addr) => setSelectedEscrow(addr)}
+          escrows={remainingEscrows} 
+          onSelect={(addr) => setSelectedEscrow(addr as Address)}
         />
       )}
     </div>
