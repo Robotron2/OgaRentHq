@@ -11,6 +11,8 @@ import EscrowDetailView from './EscrowDetailView'
 import DashboardHeader from './DashboardHeader'
 import DashboardOverview from './DashboardOverview'
 import ActiveRentalCard from './ActiveRentalCard'
+import DashboardSkeleton from './DashboardSkeleton'
+import DashboardEmptyState from './DashboardEmptyState'
 
 export default function EscrowDashboard() {
   const { address } = useWallet()
@@ -37,12 +39,7 @@ export default function EscrowDashboard() {
   }, [searchParams, selectedEscrow, router, pathname])
   
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="font-body-md text-on-surface-variant">Loading your dashboard...</p>
-      </div>
-    )
+    return <DashboardSkeleton />
   }
 
   // Placeholder for Phase 5
@@ -61,6 +58,15 @@ export default function EscrowDashboard() {
 
   const activeEscrow = escrows.find(e => e.state !== undefined && e.state < 3 && e.role !== 'NONE') || (escrows.length > 0 ? escrows[0] : undefined)
   const remainingEscrows = escrows.filter(e => e.address !== activeEscrow?.address)
+
+  if (escrows.length === 0 && !selectedEscrow) {
+    return (
+      <div className="pb-20 relative max-w-6xl mx-auto">
+        <DashboardHeader address={address} />
+        <DashboardEmptyState />
+      </div>
+    )
+  }
 
   return (
     <div className="pb-20 relative max-w-6xl mx-auto">
