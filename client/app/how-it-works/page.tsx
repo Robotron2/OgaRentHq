@@ -4,6 +4,7 @@ import SolutionSection from '@/components/HowItWorks/SolutionSection'
 import EscrowJourney from '@/components/HowItWorks/EscrowJourney'
 import BenefitsSection from '@/components/HowItWorks/BenefitsSection'
 import ScenarioSection from '@/components/HowItWorks/ScenarioSection'
+import CallToAction from '@/components/HowItWorks/CallToAction'
 
 export default function HowItWorksPage() {
   return (
@@ -14,7 +15,7 @@ export default function HowItWorksPage() {
       <EscrowJourney />
       <BenefitsSection />
       <ScenarioSection />
-      {/* Subsequent phases will go here */}
+      <CallToAction />
     </main>
   )
 }
