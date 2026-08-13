@@ -1,7 +1,8 @@
 import { defineChain } from 'viem'
+import { BOT_CHAIN_ID } from './addresses'
 
 export const bohr = defineChain({
-  id: 968,
+  id: BOT_CHAIN_ID,
   name: 'BOT Chain Testnet',
   nativeCurrency: {
     decimals: 18,

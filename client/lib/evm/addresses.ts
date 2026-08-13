@@ -1,6 +1,6 @@
 import { Address } from 'viem'
 
-export const BOT_CHAIN_ID = 968
+export const BOT_CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || 968)
 
 export const CONTRACT_ADDRESSES = {
   [BOT_CHAIN_ID]: {
