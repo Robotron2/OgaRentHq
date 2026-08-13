@@ -3,6 +3,7 @@ import ProblemSection from '@/components/HowItWorks/ProblemSection'
 import SolutionSection from '@/components/HowItWorks/SolutionSection'
 import EscrowJourney from '@/components/HowItWorks/EscrowJourney'
 import BenefitsSection from '@/components/HowItWorks/BenefitsSection'
+import ScenarioSection from '@/components/HowItWorks/ScenarioSection'
 
 export default function HowItWorksPage() {
   return (
@@ -12,6 +13,7 @@ export default function HowItWorksPage() {
       <SolutionSection />
       <EscrowJourney />
       <BenefitsSection />
+      <ScenarioSection />
       {/* Subsequent phases will go here */}
     </main>
   )
