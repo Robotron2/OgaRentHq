@@ -1,6 +1,7 @@
 import HeroSection from '@/components/HowItWorks/HeroSection'
 import ProblemSection from '@/components/HowItWorks/ProblemSection'
 import SolutionSection from '@/components/HowItWorks/SolutionSection'
+import EscrowJourney from '@/components/HowItWorks/EscrowJourney'
 
 export default function HowItWorksPage() {
   return (
@@ -8,6 +9,7 @@ export default function HowItWorksPage() {
       <HeroSection />
       <ProblemSection />
       <SolutionSection />
+      <EscrowJourney />
       {/* Subsequent phases will go here */}
     </main>
   )
