@@ -16,7 +16,7 @@ interface CreateEscrowModalProps {
 
 export default function CreateEscrowModal({ property, onClose }: CreateEscrowModalProps) {
   const { address: userAddress, isWrongNetwork, switchNetwork } = useWallet()
-  const { createEscrow, isPending, isSuccess, error } = useCreateEscrow()
+  const { createEscrow, isPending, isSuccess, error, newEscrowAddress } = useCreateEscrow()
   const router = useRouter()
 
   const [validationError, setValidationError] = useState('')
@@ -55,11 +55,15 @@ export default function CreateEscrowModal({ property, onClose }: CreateEscrowMod
     if (isSuccess) {
       const timer = setTimeout(() => {
         onClose()
-        router.push('/dashboard')
+        if (newEscrowAddress) {
+          router.push(`/dashboard?escrow=${newEscrowAddress}`)
+        } else {
+          router.push('/dashboard')
+        }
       }, 2000)
       return () => clearTimeout(timer)
     }
-  }, [isSuccess, onClose, router])
+  }, [isSuccess, newEscrowAddress, onClose, router])
 
   if (isSuccess) {
     return (

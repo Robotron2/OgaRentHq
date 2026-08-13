@@ -1,14 +1,34 @@
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { OgaRentFactoryABI } from '@/lib/evm/abis'
 import { getFactoryAddress, getTokenAddress, getPlatformAdminAddress } from '@/lib/evm/addresses'
-import { Address } from 'viem'
+import { Address, decodeEventLog } from 'viem'
+import { useMemo } from 'react'
 
 export function useCreateEscrow() {
   const { writeContract, data: hash, error, isPending } = useWriteContract()
 
-  const { isLoading: isWaiting, isSuccess } = useWaitForTransactionReceipt({
+  const { data: receipt, isLoading: isWaiting, isSuccess } = useWaitForTransactionReceipt({
     hash,
   })
+
+  const newEscrowAddress = useMemo(() => {
+    if (!receipt || !isSuccess) return undefined
+    for (const log of receipt.logs) {
+      try {
+        const decoded = decodeEventLog({
+          abi: OgaRentFactoryABI,
+          data: log.data,
+          topics: log.topics,
+        })
+        if (decoded.eventName === 'EscrowCreated') {
+          return (decoded.args as any).escrow as Address
+        }
+      } catch (e) {
+        // Ignore logs that don't match the ABI
+      }
+    }
+    return undefined
+  }, [receipt, isSuccess])
 
   const createEscrow = (
     tenant: Address,
@@ -40,6 +60,7 @@ export function useCreateEscrow() {
     isPending: isPending || isWaiting,
     isSuccess,
     error,
-    hash
+    hash,
+    newEscrowAddress
   }
 }
