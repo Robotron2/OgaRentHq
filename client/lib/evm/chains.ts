@@ -4,6 +4,7 @@ import { BOT_CHAIN_ID } from './addresses'
 export const bohr = defineChain({
   id: BOT_CHAIN_ID,
   name: 'BOT Chain Testnet',
+  network: 'bot-testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'BOT',
@@ -20,4 +21,5 @@ export const bohr = defineChain({
   blockExplorers: {
     default: { name: 'BOT Scan', url: 'https://scan.bohr.life' },
   },
+  testnet: true,
 })
