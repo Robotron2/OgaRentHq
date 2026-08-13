@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 
 export default function HeroGallery({ images = ["/house1.png"] }: { images?: string[] }) {
   const mainImage = images[0] || "/house1.png";
+  const secondImage = images[1] || mainImage;
+  const thirdImage = images[2] || mainImage;
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -56,8 +58,8 @@ export default function HeroGallery({ images = ["/house1.png"] }: { images?: str
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover hover:opacity-90 cursor-pointer transition-opacity"
-              alt="Close-up interior of a modern living room in a Victoria Island penthouse"
-              src="/house2.webp"
+              alt="Property Interior 1"
+              src={secondImage}
             />
           </motion.div>
           <motion.div variants={itemVariants} className="h-1/2 rounded-[20px] overflow-hidden relative">
@@ -65,8 +67,8 @@ export default function HeroGallery({ images = ["/house1.png"] }: { images?: str
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover hover:opacity-90 cursor-pointer transition-opacity"
-              alt="Interior shot of a designer kitchen with integrated high-end appliances"
-              src="/house3.png"
+              alt="Property Interior 2"
+              src={thirdImage}
             />
             <motion.button 
               whileHover={{ scale: 1.05 }}
