@@ -1,4 +1,4 @@
-export type AgreementFilter = 'All' | 'Active' | 'Completed' | 'Disputed'
+export type AgreementFilter = 'All' | 'Active' | 'Occupied' | 'Disputed'
 
 interface AgreementFiltersProps {
   currentFilter: AgreementFilter
@@ -6,7 +6,7 @@ interface AgreementFiltersProps {
 }
 
 export default function AgreementFilters({ currentFilter, onFilterChange }: AgreementFiltersProps) {
-  const filters: AgreementFilter[] = ['All', 'Active', 'Completed', 'Disputed']
+  const filters: AgreementFilter[] = ['All', 'Active', 'Occupied', 'Disputed']
 
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide animate-in fade-in duration-500">

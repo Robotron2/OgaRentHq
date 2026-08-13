@@ -38,7 +38,7 @@ export default function EscrowList({ escrows, onSelect }: EscrowListProps) {
 
   const filteredEscrows = escrows.filter(e => {
     if (filter === 'Active') return e.state !== undefined && e.state < 3
-    if (filter === 'Completed') return e.state === 4
+    if (filter === 'Occupied') return e.state === 2
     if (filter === 'Disputed') return e.state === 3
     return true
   })
