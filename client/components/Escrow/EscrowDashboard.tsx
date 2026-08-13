@@ -10,6 +10,7 @@ import EscrowList from './EscrowList/EscrowList'
 import EscrowDetailView from './EscrowDetailView'
 import DashboardHeader from './DashboardHeader'
 import DashboardOverview from './DashboardOverview'
+import ActiveRentalCard from './ActiveRentalCard'
 
 export default function EscrowDashboard() {
   const { address } = useWallet()
@@ -58,6 +59,9 @@ export default function EscrowDashboard() {
     )
   }
 
+  const activeEscrow = escrows.find(e => e.state !== undefined && e.state < 3 && e.role !== 'NONE') || (escrows.length > 0 ? escrows[0] : undefined)
+  const remainingEscrowAddresses = escrows.filter(e => e.address !== activeEscrow?.address).map(e => e.address)
+
   return (
     <div className="pb-20 relative max-w-6xl mx-auto">
       <DashboardHeader address={address} />
@@ -66,10 +70,19 @@ export default function EscrowDashboard() {
         <DashboardOverview escrows={escrows} />
       )}
 
-      <EscrowList 
-        escrows={escrowAddresses || []} 
-        onSelect={(addr) => setSelectedEscrow(addr)}
-      />
+      {activeEscrow && (
+        <ActiveRentalCard 
+          escrow={activeEscrow} 
+          onClick={() => setSelectedEscrow(activeEscrow.address)} 
+        />
+      )}
+
+      {remainingEscrowAddresses.length > 0 && (
+        <EscrowList 
+          escrows={remainingEscrowAddresses} 
+          onSelect={(addr) => setSelectedEscrow(addr)}
+        />
+      )}
     </div>
   )
 }
