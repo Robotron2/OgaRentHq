@@ -32,8 +32,8 @@ export function useUserEscrows(userAddress: Address | undefined) {
     const tenantEscrows = (data[0].result as Address[]) || []
     const landlordEscrows = (data[1].result as Address[]) || []
     
-    // Deduplicate addresses 
-    return Array.from(new Set([...tenantEscrows, ...landlordEscrows]))
+    // Deduplicate addresses and reverse so newest is first
+    return Array.from(new Set([...tenantEscrows, ...landlordEscrows])).reverse()
   }, [data])
 
   return {
