@@ -38,6 +38,7 @@ export function useEscrowDetails(escrowAddress: Address | undefined) {
     ],
     query: {
       enabled: !!escrowAddress,
+      refetchInterval: 5000,
     }
   })
 
@@ -68,6 +69,7 @@ export function useMultipleEscrowDetails(escrowAddresses: readonly Address[]) {
     contracts,
     query: {
       enabled: escrowAddresses.length > 0,
+      refetchInterval: 5000,
     }
   })
 

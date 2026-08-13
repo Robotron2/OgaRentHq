@@ -24,6 +24,7 @@ export function useUserEscrows(userAddress: Address | undefined) {
     ],
     query: {
       enabled: !!userAddress,
+      refetchInterval: 5000,
     }
   })
 
