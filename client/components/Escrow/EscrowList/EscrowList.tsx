@@ -1,6 +1,6 @@
 import { Address } from 'viem'
 import EscrowCard from './EscrowCard'
-import { Plus } from 'lucide-react'
+import { FileText, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 interface EscrowListProps {
@@ -11,15 +11,21 @@ interface EscrowListProps {
 export default function EscrowList({ escrows, onSelect }: EscrowListProps) {
   if (escrows.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4 bg-white rounded-3xl border border-outline-variant/30 p-8 text-center max-w-lg mx-auto mt-12 shadow-sm animate-in fade-in duration-300">
-        <h2 className="font-headline-md text-primary font-bold">No Active Agreements</h2>
-        <p className="font-body-md text-on-surface-variant max-w-sm mb-6">
-          You don&apos;t have any active rental agreements yet.
-        </p>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6 bg-white rounded-3xl border border-outline-variant/30 p-12 text-center max-w-2xl mx-auto mt-8 shadow-sm animate-in fade-in duration-300">
+        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-2">
+          <FileText size={32} />
+        </div>
+        <div>
+          <h2 className="font-headline-lg text-primary font-bold mb-2">No Active Agreements</h2>
+          <p className="font-body-md text-on-surface-variant max-w-sm mx-auto">
+            You don't have any active rental agreements yet. Find a property you love and start the escrow process securely.
+          </p>
+        </div>
         <Link 
           href="/"
-          className="bg-primary text-white font-headline-sm px-6 py-3 rounded-xl hover:bg-primary/90 transition-colors shadow-md"
+          className="bg-primary text-white font-headline-sm px-8 py-3.5 rounded-xl hover:bg-primary/90 transition-colors shadow-md shadow-primary/20 flex items-center gap-2 mt-4"
         >
+          <Plus size={20} />
           Browse Properties
         </Link>
       </div>

@@ -58,7 +58,7 @@ export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetail
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 flex flex-col gap-8">
           <EscrowTimeline currentState={state} />
           <EscrowFinancials 
@@ -71,7 +71,7 @@ export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetail
         </div>
         
         <div className="lg:col-span-1">
-          <div className="sticky top-32">
+          <div className="sticky top-32 z-10">
             <EscrowActionPanel state={state} role={role} escrowAddress={escrowAddress} totalAmount={totalAmount} />
           </div>
         </div>

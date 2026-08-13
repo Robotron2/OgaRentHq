@@ -69,10 +69,10 @@ export default function EscrowActionPanel({ state, role = 'NONE', escrowAddress,
             if (stateStr === 'Created') setIsDepositModalOpen(true)
             if (stateStr === 'Funded') setIsConfirmOccupancyModalOpen(true)
           }}
-          className={`w-full py-4 rounded-lg font-label-caps font-bold transition-colors shadow-sm ${
+          className={`w-full py-4 rounded-xl font-headline-sm font-bold transition-all duration-300 ${
             role === 'TENANT' && stateStr && ['Created', 'Funded'].includes(stateStr) 
-              ? 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container shadow-primary/20' 
-              : 'bg-outline-variant/50 text-outline cursor-not-allowed'
+              ? 'bg-primary text-on-primary hover:bg-primary/90 shadow-lg shadow-primary/30 animate-in zoom-in-95' 
+              : 'bg-outline-variant/30 text-on-surface-variant cursor-not-allowed border border-outline-variant/30'
           }`}
         >
           {role !== 'TENANT' && stateStr === 'Created' ? 'Waiting for Tenant Deposit' : 
@@ -84,7 +84,7 @@ export default function EscrowActionPanel({ state, role = 'NONE', escrowAddress,
           <button 
             onClick={() => executeAction(escrowAddress, 'claimCaution')}
             disabled={isClaimPending}
-            className={`w-full py-4 rounded-lg font-label-caps font-bold transition-colors shadow-sm bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`w-full py-4 rounded-xl font-headline-sm font-bold transition-all shadow-lg bg-primary text-on-primary hover:bg-primary/90 shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {isClaimPending ? 'Claiming...' : 'Claim Caution Deposit'}
           </button>
