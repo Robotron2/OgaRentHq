@@ -15,8 +15,9 @@ export function generateStaticParams() {
   }));
 }
 
-export default function PropertyDetailsPage({ params }: { params: { id: string } }) {
-  const property = properties.find((p) => p.id === params.id);
+export default async function PropertyDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const property = properties.find((p) => p.id === resolvedParams.id);
   
   if (!property) {
     notFound();
