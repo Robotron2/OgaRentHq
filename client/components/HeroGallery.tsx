@@ -5,7 +5,8 @@ import Image from "next/image";
 import { BadgeCheck, LayoutGrid } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function HeroGallery() {
+export default function HeroGallery({ images = ["/house1.png"] }: { images?: string[] }) {
+  const mainImage = images[0] || "/house1.png";
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -33,7 +34,7 @@ export default function HeroGallery() {
             sizes="(max-width: 768px) 100vw, 66vw"
             className="object-cover group-hover:scale-105 transition-transform duration-700"
             alt="A cinematic, high-angle aerial view of a luxurious modern apartment building in Victoria Island"
-            src="/house1.png"
+            src={mainImage}
             priority
           />
           <div className="absolute top-6 left-6 flex gap-2">

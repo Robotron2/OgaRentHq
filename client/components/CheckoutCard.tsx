@@ -3,8 +3,14 @@
 import React from "react";
 import { ShieldCheck, ArrowRight, ShieldAlert } from "lucide-react";
 import { motion } from "framer-motion";
+import { Property } from "@/data/properties";
+import { formatUnits } from "viem";
 
-export default function CheckoutCard() {
+export default function CheckoutCard({ property }: { property: Property }) {
+  const rent = property.rentAmount;
+  const caution = property.cautionDeposit;
+  const agent = property.agentFee;
+  const total = rent + caution + agent;
   return (
     <div className="sticky top-24 space-y-stack-md">
       {/* Escrow Summary Card */}
@@ -32,19 +38,19 @@ export default function CheckoutCard() {
         <div className="space-y-3 py-stack-md border-y border-outline-variant/10">
           <div className="flex justify-between text-sm">
             <span className="text-on-surface-variant">Annual Rent</span>
-            <span className="font-data-tabular font-medium">₦12,500,000</span>
+            <span className="font-data-tabular font-medium">{formatUnits(rent, 6)} mUSDC</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-on-surface-variant">Caution Deposit (Refundable)</span>
-            <span className="font-data-tabular font-medium">₦1,250,000</span>
+            <span className="font-data-tabular font-medium">{formatUnits(caution, 6)} mUSDC</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-on-surface-variant">Legal &amp; Agency Fees (5%)</span>
-            <span className="font-data-tabular font-medium">₦1,250,000</span>
+            <span className="text-on-surface-variant">Legal &amp; Agency Fees (10%)</span>
+            <span className="font-data-tabular font-medium">{formatUnits(agent, 6)} mUSDC</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-on-surface-variant">OgaRent Processing Fee</span>
-            <span className="font-data-tabular font-medium">₦50,000</span>
+            <span className="text-on-surface-variant text-primary font-medium">OgaRent Processing Fee</span>
+            <span className="font-data-tabular font-medium text-primary">0 mUSDC (Promo)</span>
           </div>
         </div>
 
@@ -53,7 +59,7 @@ export default function CheckoutCard() {
             Total Escrow Pay
           </span>
           <span className="font-display-lg text-headline-md text-primary">
-            ₦15,050,000
+            {formatUnits(total, 6)} mUSDC
           </span>
         </div>
 
@@ -62,7 +68,7 @@ export default function CheckoutCard() {
           whileTap={{ scale: 0.98 }}
           className="w-full bg-primary text-white py-4 rounded-xl font-headline-md text-body-md flex items-center justify-center gap-2 transition-colors shadow-lg shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container group"
         >
-          Start Escrow Now
+          Rent with OgaRent
           <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
         </motion.button>
         <p className="text-[11px] text-center text-outline mt-4 px-4 leading-relaxed">

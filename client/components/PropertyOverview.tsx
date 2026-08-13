@@ -3,8 +3,9 @@
 import React from "react";
 import { BedDouble, Car, Waves, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { Property } from "@/data/properties";
 
-export default function PropertyOverview() {
+export default function PropertyOverview({ property }: { property: Property }) {
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -48,7 +49,7 @@ export default function PropertyOverview() {
           <ul className="space-y-3">
             <li className="flex items-center gap-3 text-sm text-on-surface">
               <BedDouble size={20} className="text-primary-container" />
-              4 Luxury En-suite Bedrooms
+              {property.bedrooms} Luxury Bedrooms
             </li>
             <li className="flex items-center gap-3 text-sm text-on-surface">
               <Car size={20} className="text-primary-container" />
@@ -69,14 +70,8 @@ export default function PropertyOverview() {
           <h5 className="text-[10px] font-label-caps text-outline mb-2">
             ABOUT THE PROPERTY
           </h5>
-          <p className="text-on-surface-variant leading-relaxed">
-            A masterpiece of modern tropical architecture, The Emerald Terraces
-            offers unparalleled luxury in the heart of Victoria Island. Featuring
-            sustainable design with integrated green balconies, the apartment
-            provides breathtaking views of the Lagos Lagoon. Each unit is finished
-            with Italian marble, smart-home automation, and premium Nigerian hardwood.
-            Experience the perfect blend of security and serenity in West Africa&apos;s
-            most prestigious commercial hub.
+          <p className="text-on-surface-variant leading-relaxed whitespace-pre-wrap">
+            {property.description}
           </p>
         </motion.div>
       </motion.div>
