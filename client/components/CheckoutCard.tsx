@@ -21,7 +21,7 @@ export default function CheckoutCard({ property }: { property: Property }) {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.6, ease: "easeOut" as const }}
         className="bg-white rounded-2xl p-stack-lg border border-outline-variant/30 shadow-sm"
       >
         <div className="flex items-center gap-2 mb-stack-md">
@@ -90,7 +90,7 @@ export default function CheckoutCard({ property }: { property: Property }) {
         initial={{ opacity: 0, x: 20 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" as const }}
         className="p-stack-md bg-white rounded-2xl border border-outline-variant/30 flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer"
       >
         <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
