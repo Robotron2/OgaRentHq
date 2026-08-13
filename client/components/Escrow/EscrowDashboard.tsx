@@ -13,7 +13,6 @@ export default function EscrowDashboard() {
   const { data: escrows, isLoading: isFactoryLoading } = useUserEscrows(address)
   
   const [selectedEscrow, setSelectedEscrow] = useState<Address | undefined>(undefined)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   
   if (isFactoryLoading) {
     return (
@@ -43,11 +42,7 @@ export default function EscrowDashboard() {
       <EscrowList 
         escrows={escrows || []} 
         onSelect={(addr) => setSelectedEscrow(addr)}
-        onCreateNew={() => setIsCreateModalOpen(true)}
       />
-      {isCreateModalOpen && (
-        <CreateEscrowModal onClose={() => setIsCreateModalOpen(false)} />
-      )}
     </div>
   )
 }
