@@ -11,13 +11,13 @@ export const CONTRACT_ADDRESSES = {
 }
 
 export const getFactoryAddress = (chainId: number = BOT_CHAIN_ID): Address => {
-  return CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.factory
+  return CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.factory || CONTRACT_ADDRESSES[BOT_CHAIN_ID].factory
 }
 
 export const getTokenAddress = (chainId: number = BOT_CHAIN_ID): Address => {
-  return CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.mockUSDC
+  return CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.mockUSDC || CONTRACT_ADDRESSES[BOT_CHAIN_ID].mockUSDC
 }
 
 export const getPlatformAdminAddress = (chainId: number = BOT_CHAIN_ID): Address => {
-  return CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.admin
+  return CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.admin || CONTRACT_ADDRESSES[BOT_CHAIN_ID].admin
 }
