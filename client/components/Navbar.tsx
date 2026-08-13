@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import ConnectButton from "@/components/Wallet/ConnectButton";
@@ -11,6 +12,7 @@ export default function Navbar() {
   const { isConnected } = useWallet();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -46,11 +48,25 @@ export default function Navbar() {
           
           {/* Desktop Nav Links */}
           <div className="hidden lg:flex gap-8 items-center">
-            <Link href="/how-it-works" className="font-body-md text-on-surface-variant hover:text-primary transition-colors py-2 px-1">
+            <Link 
+              href="/how-it-works" 
+              className={`font-body-md transition-colors py-2 px-1 border-b-2 ${
+                pathname === "/how-it-works" 
+                  ? "text-primary font-medium border-primary" 
+                  : "text-on-surface-variant hover:text-primary border-transparent"
+              }`}
+            >
               How it Works
             </Link>
             {isMounted && isConnected && (
-              <Link href="/dashboard" className="font-body-md text-primary font-medium border-b-2 border-primary py-2 px-1">
+              <Link 
+                href="/dashboard" 
+                className={`font-body-md transition-colors py-2 px-1 border-b-2 ${
+                  pathname === "/dashboard" 
+                    ? "text-primary font-medium border-primary" 
+                    : "text-on-surface-variant hover:text-primary border-transparent"
+                }`}
+              >
                 Dashboard
               </Link>
             )}
@@ -88,7 +104,11 @@ export default function Navbar() {
         <div className="flex flex-col gap-6 text-lg">
           <Link 
             href="/how-it-works" 
-            className="font-body-lg text-on-surface-variant font-medium border-b border-outline-variant/20 pb-4"
+            className={`font-body-lg font-medium border-b pb-4 ${
+              pathname === "/how-it-works"
+                ? "text-primary border-primary/30"
+                : "text-on-surface-variant border-outline-variant/20"
+            }`}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             How it Works
@@ -96,7 +116,11 @@ export default function Navbar() {
           {isMounted && isConnected && (
             <Link 
               href="/dashboard" 
-              className="font-body-lg text-primary font-medium border-b border-primary/20 pb-4"
+              className={`font-body-lg font-medium border-b pb-4 ${
+                pathname === "/dashboard"
+                  ? "text-primary border-primary/30"
+                  : "text-on-surface-variant border-outline-variant/20"
+              }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Dashboard
