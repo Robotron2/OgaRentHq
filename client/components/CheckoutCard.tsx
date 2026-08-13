@@ -5,8 +5,11 @@ import { ShieldCheck, ArrowRight, ShieldAlert } from "lucide-react";
 import { motion } from "framer-motion";
 import { Property } from "@/data/properties";
 import { formatUnits } from "viem";
+import { useState } from "react";
+import CreateEscrowModal from "./Escrow/CreateEscrowModal";
 
 export default function CheckoutCard({ property }: { property: Property }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const rent = property.rentAmount;
   const caution = property.cautionDeposit;
   const agent = property.agentFee;
@@ -64,6 +67,7 @@ export default function CheckoutCard({ property }: { property: Property }) {
         </div>
 
         <motion.button 
+          onClick={() => setIsModalOpen(true)}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="w-full bg-primary text-white py-4 rounded-xl font-headline-md text-body-md flex items-center justify-center gap-2 transition-colors shadow-lg shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container group"
@@ -76,6 +80,10 @@ export default function CheckoutCard({ property }: { property: Property }) {
           of keys and property condition.
         </p>
       </motion.div>
+
+      {isModalOpen && (
+        <CreateEscrowModal property={property} onClose={() => setIsModalOpen(false)} />
+      )}
 
       {/* Verified Badge Cluster */}
       <motion.div 

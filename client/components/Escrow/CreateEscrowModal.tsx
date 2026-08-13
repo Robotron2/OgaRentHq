@@ -1,26 +1,23 @@
 'use client'
 
 import { useState } from 'react'
-import { Address, isAddress, parseUnits } from 'viem'
+import { Address } from 'viem'
 import { useCreateEscrow } from '@/hooks/useFactoryWrite'
 import { useWallet } from '@/hooks/useWallet'
-import { X, Loader2 } from 'lucide-react'
+import { X, Loader2, ShieldCheck, MapPin } from 'lucide-react'
+import { Property } from '@/data/properties'
+import { formatUnits } from 'viem'
+import { useRouter } from 'next/navigation'
 
 interface CreateEscrowModalProps {
+  property: Property
   onClose: () => void
 }
 
-export default function CreateEscrowModal({ onClose }: CreateEscrowModalProps) {
+export default function CreateEscrowModal({ property, onClose }: CreateEscrowModalProps) {
   const { address: userAddress } = useWallet()
   const { createEscrow, isPending, isSuccess, error } = useCreateEscrow()
-
-  const [formData, setFormData] = useState({
-    landlord: '',
-    agent: '',
-    rentAmount: '',
-    agentFee: '',
-    cautionDeposit: ''
-  })
+  const router = useRouter()
 
   const [validationError, setValidationError] = useState('')
 
@@ -33,29 +30,14 @@ export default function CreateEscrowModal({ onClose }: CreateEscrowModalProps) {
       return
     }
 
-    if (!isAddress(formData.landlord)) {
-      setValidationError('Invalid Landlord Address')
-      return
-    }
-
-    if (!isAddress(formData.agent)) {
-      setValidationError('Invalid Agent Address')
-      return
-    }
-
-    if (!formData.rentAmount || !formData.agentFee || !formData.cautionDeposit) {
-      setValidationError('Please fill in all amounts')
-      return
-    }
-
     try {
       createEscrow(
-        userAddress as Address, // User creating is the Tenant
-        formData.landlord as Address,
-        formData.agent as Address,
-        parseUnits(formData.rentAmount, 6),
-        parseUnits(formData.agentFee, 6),
-        parseUnits(formData.cautionDeposit, 6)
+        userAddress as Address,
+        property.landlordAddress,
+        property.agentAddress,
+        property.rentAmount,
+        property.agentFee,
+        property.cautionDeposit
       )
     } catch (err) {
       console.error(err)
@@ -64,7 +46,10 @@ export default function CreateEscrowModal({ onClose }: CreateEscrowModalProps) {
   }
 
   if (isSuccess) {
-    setTimeout(onClose, 2000)
+    setTimeout(() => {
+      onClose()
+      router.push('/dashboard')
+    }, 2000)
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center animate-in zoom-in-95">
@@ -89,73 +74,33 @@ export default function CreateEscrowModal({ onClose }: CreateEscrowModalProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
-          <div>
-            <label className="block font-label-lg font-medium text-on-surface mb-1">Landlord Address</label>
-            <input 
-              type="text"
-              placeholder="0x..."
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono text-sm"
-              value={formData.landlord}
-              onChange={e => setFormData({...formData, landlord: e.target.value})}
-            />
+          <div className="flex flex-col gap-1 border-b border-outline-variant/20 pb-4">
+            <h3 className="font-headline-sm text-primary">{property.title}</h3>
+            <p className="text-sm text-on-surface-variant flex items-center gap-1"><MapPin size={14}/> {property.location}</p>
           </div>
 
-          <div>
-            <label className="block font-label-lg font-medium text-on-surface mb-1">Agent Address</label>
-            <input 
-              type="text"
-              placeholder="0x..."
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono text-sm"
-              value={formData.agent}
-              onChange={e => setFormData({...formData, agent: e.target.value})}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block font-label-lg font-medium text-on-surface mb-1">Rent Amount</label>
-              <div className="relative">
-                <input 
-                  type="number"
-                  placeholder="0.00"
-                  step="0.01"
-                  className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                  value={formData.rentAmount}
-                  onChange={e => setFormData({...formData, rentAmount: e.target.value})}
-                />
-                <span className="absolute right-4 top-3.5 text-on-surface-variant text-sm font-medium">mUSDC</span>
-              </div>
+          <div className="bg-surface-container-low rounded-xl p-4 border border-outline-variant/30 flex flex-col gap-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-on-surface-variant">Annual Rent</span>
+              <span className="font-medium text-on-surface">{formatUnits(property.rentAmount, 6)} mUSDC</span>
             </div>
-
-            <div>
-              <label className="block font-label-lg font-medium text-on-surface mb-1">Agent Fee</label>
-              <div className="relative">
-                <input 
-                  type="number"
-                  placeholder="0.00"
-                  step="0.01"
-                  className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                  value={formData.agentFee}
-                  onChange={e => setFormData({...formData, agentFee: e.target.value})}
-                />
-                <span className="absolute right-4 top-3.5 text-on-surface-variant text-sm font-medium">mUSDC</span>
-              </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-on-surface-variant">Caution Deposit</span>
+              <span className="font-medium text-on-surface">{formatUnits(property.cautionDeposit, 6)} mUSDC</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-on-surface-variant">Agent Fee</span>
+              <span className="font-medium text-on-surface">{formatUnits(property.agentFee, 6)} mUSDC</span>
+            </div>
+            <div className="pt-3 mt-1 border-t border-outline-variant/20 flex justify-between font-bold">
+              <span className="text-primary">Total to Secure</span>
+              <span className="text-primary">{formatUnits(property.rentAmount + property.cautionDeposit + property.agentFee, 6)} mUSDC</span>
             </div>
           </div>
-
-          <div>
-            <label className="block font-label-lg font-medium text-on-surface mb-1">Caution Deposit</label>
-            <div className="relative">
-              <input 
-                type="number"
-                placeholder="0.00"
-                step="0.01"
-                className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                value={formData.cautionDeposit}
-                onChange={e => setFormData({...formData, cautionDeposit: e.target.value})}
-              />
-              <span className="absolute right-4 top-3.5 text-on-surface-variant text-sm font-medium">mUSDC</span>
-            </div>
+          
+          <div className="bg-tertiary-fixed/30 text-on-tertiary-fixed p-3 rounded-lg flex items-start gap-2 text-sm border border-tertiary-fixed-dim/30">
+            <ShieldCheck size={18} className="shrink-0 mt-0.5" />
+            <p>Creating this agreement will register the terms on the blockchain. You will not be charged yet. You can deposit funds from your dashboard after creation.</p>
           </div>
 
           {(validationError || error) && (
