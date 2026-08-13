@@ -26,6 +26,17 @@ export default function EscrowCard({ escrowAddress, onClick }: EscrowCardProps) 
   const states = ['Created', 'Funded', 'Occupied', 'Disputed', 'Completed']
   const stateStr = state !== undefined ? states[state] : 'Unknown'
 
+  const getStateColors = (s: string) => {
+    switch (s) {
+      case 'Created': return 'bg-gray-100 text-gray-600'
+      case 'Funded': return 'bg-blue-100 text-blue-700'
+      case 'Occupied': return 'bg-primary/10 text-primary font-semibold'
+      case 'Disputed': return 'bg-red-100 text-red-700 font-semibold'
+      case 'Completed': return 'bg-green-100 text-green-700 font-semibold'
+      default: return 'bg-gray-100 text-gray-600'
+    }
+  }
+
   const property = properties.find(
     p => p.landlordAddress.toLowerCase() === config.landlord.toLowerCase() && p.rentAmount === config.rentAmount
   )
@@ -45,7 +56,7 @@ export default function EscrowCard({ escrowAddress, onClick }: EscrowCardProps) 
             <span className="font-body-md font-medium text-primary line-clamp-1">{property ? property.title : 'Rental Agreement'}</span>
           </div>
         </div>
-        <div className="bg-surface-container-high px-3 py-1 rounded-full text-xs font-medium text-on-surface shrink-0">
+        <div className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 ${getStateColors(stateStr)}`}>
           {stateStr}
         </div>
       </div>
