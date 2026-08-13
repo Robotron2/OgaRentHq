@@ -6,7 +6,7 @@ import { useWallet } from '@/hooks/useWallet'
 import { useTokenAllowance, useTokenApprove } from '@/hooks/useToken'
 import { useEscrowWrite } from '@/hooks/useEscrowWrite'
 import { X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
-import { formatMusdcToNaira } from './EscrowFinancials'
+import { formatUnits } from 'viem'
 
 interface DepositModalProps {
   isOpen: boolean
@@ -106,7 +106,12 @@ export default function DepositModal({ isOpen, onClose, escrowAddress, totalAmou
             <>
               <div className="bg-surface-container-low rounded-xl p-4 flex flex-col gap-1 text-center border border-outline-variant/30">
                 <span className="font-body-md text-on-surface-variant">Total to deposit</span>
-                <span className="font-display-lg text-primary">{formatMusdcToNaira(totalAmount)}</span>
+                <div className="font-display-lg text-primary flex flex-col items-center">
+                  <span>{formatUnits(totalAmount, 6)} mUSDC</span>
+                  <span className="text-sm text-on-surface-variant/70 font-sans tracking-wide">
+                    ≈ {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(Number((totalAmount * 1500n) / 1_000_000n))}
+                  </span>
+                </div>
               </div>
 
               {error && (
