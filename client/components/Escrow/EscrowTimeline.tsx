@@ -15,7 +15,10 @@ export const stateMap: Record<number, EscrowStateString> = {
 
 export default function EscrowTimeline({ currentState }: { currentState: number | undefined }) {
   const stateIndex = currentState ?? 0
-  
+  const visualIndex = Math.min(stateIndex, 2)
+  const finalState = stateIndex === 3 ? 'Disputed' : stateIndex === 4 ? 'Completed' : 'Occupied'
+  const displayStates = ['Created', 'Funded', finalState]
+
   return (
     <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 md:p-8">
       <h3 className="font-headline-md text-primary mb-8">Escrow Progress</h3>
@@ -24,13 +27,13 @@ export default function EscrowTimeline({ currentState }: { currentState: number 
         <div className="absolute top-4 left-10 right-10 h-1 bg-surface-container-highest -translate-y-1/2 z-0 rounded-full" />
         <div 
           className="absolute top-4 left-10 h-1 bg-primary -translate-y-1/2 z-0 transition-all duration-500 rounded-full"
-          style={{ width: `calc(${(Math.min(stateIndex, 4) / 4)} * (100% - 5rem))` }}
+          style={{ width: `calc(${(visualIndex / 2)} * (100% - 5rem))` }}
         />
         
-        {EscrowStates.map((stateName, i) => {
-          const isCompleted = i <= stateIndex
-          const isActive = i === stateIndex
-          const isDisputed = stateName === 'Disputed' && stateIndex === 3
+        {displayStates.map((stateName, visualIdx) => {
+          const isCompleted = visualIdx <= visualIndex
+          const isActive = visualIdx === visualIndex
+          const isDisputed = stateName === 'Disputed'
           
           return (
             <div key={stateName} className="relative z-10 flex flex-col items-center gap-3 w-20">
