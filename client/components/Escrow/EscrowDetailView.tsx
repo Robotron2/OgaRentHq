@@ -16,10 +16,10 @@ interface EscrowDetailViewProps {
 
 export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetailViewProps) {
   const { config, role, state, occupancyTimestamp, isLoading, refetch } = useEscrowDetails(escrowAddress)
-  const totalAmount = config ? (config.rentAmount + config.agentFee + config.cautionDeposit) : 0n
+  const totalAmount = config ? (config.rentAmount + config.agentFee) : 0n
 
-  const property = config 
-    ? properties.find(p => p.landlordAddress.toLowerCase() === config.landlord.toLowerCase() && p.rentAmount === config.rentAmount) 
+  const property = config
+    ? properties.find(p => p.landlordAddress.toLowerCase() === config.landlord.toLowerCase() && p.rentAmount === config.rentAmount)
     : undefined
 
   if (isLoading) {
@@ -33,7 +33,7 @@ export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetail
 
   return (
     <div className="flex flex-col gap-8 pb-20 animate-in fade-in duration-300">
-      <button 
+      <button
         onClick={onBack}
         className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors w-fit bg-white px-4 py-2 rounded-full shadow-sm border border-outline-variant/20"
       >
@@ -42,10 +42,10 @@ export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetail
       </button>
 
       <div className="relative w-full h-[30vh] md:h-[40vh] rounded-3xl overflow-hidden shadow-md border border-outline-variant/30">
-        <Image 
-          src={property ? property.images[0] : "/house1.png"} 
-          alt="Property" 
-          fill 
+        <Image
+          src={property ? property.images[0] : "/house1.png"}
+          alt="Property"
+          fill
           className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -61,15 +61,14 @@ export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetail
       <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 flex flex-col gap-8">
           <EscrowTimeline currentState={state} />
-          <EscrowFinancials 
-            rentAmount={config?.rentAmount} 
-            agentFee={config?.agentFee} 
-            cautionDeposit={config?.cautionDeposit} 
-            occupancyTimestamp={occupancyTimestamp} 
+          <EscrowFinancials
+            rentAmount={config?.rentAmount}
+            agentFee={config?.agentFee}
+            occupancyTimestamp={occupancyTimestamp}
             role={role}
           />
         </div>
-        
+
         <div className="lg:col-span-1">
           <div className="sticky top-32 z-10">
             <EscrowActionPanel state={state} role={role} escrowAddress={escrowAddress} totalAmount={totalAmount} onRefetch={refetch} />

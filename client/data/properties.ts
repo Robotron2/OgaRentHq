@@ -20,8 +20,8 @@ export interface Property {
   agentAddress: Address
 }
 
-const DEMO_LANDLORD = '0x1111111111111111111111111111111111111111' as Address
-const DEMO_AGENT = '0x2222222222222222222222222222222222222222' as Address
+const DEMO_LANDLORD = '0x71C6Bdd78368B77F745568E238dbefC5560fD381' as Address
+const DEMO_AGENT = '0x88A8093BdB552eC446a7C409df06B7609403aB0b' as Address
 
 export const properties: Property[] = [
   {
@@ -115,7 +115,7 @@ export const properties: Property[] = [
     location: 'Bode Thomas Street, Surulere',
     neighborhood: 'Surulere',
     description: 'Comfortable 3-bedroom apartment located in the bustling heart of Surulere. Easy access to the mainland bridge, local markets, and family-friendly recreational spots.',
-    images: ['https://images.unsplash.com/photo-1493809842364-78817add7ff6?q=80&w=2070'],
+    images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070', 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075', 'https://images.unsplash.com/photo-1600607687931-cebf1429c313?q=80&w=1964'],
     propertyType: 'Apartment',
     category: 'Apartment',
     bedrooms: 3,
@@ -166,7 +166,7 @@ export const properties: Property[] = [
     location: 'Magodo Brooks Estate',
     neighborhood: 'Magodo',
     description: 'Beautiful 5-bedroom fully detached house in the highly sought-after Magodo Brooks. Ample parking, green areas, and top-tier estate security.',
-    images: ['https://images.unsplash.com/photo-1605276374104-aa237f7cecd7?q=80&w=2070'],
+    images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070', 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075', 'https://images.unsplash.com/photo-1600607687931-cebf1429c313?q=80&w=1964'],
     propertyType: 'Detached House',
     category: 'House',
     bedrooms: 5,

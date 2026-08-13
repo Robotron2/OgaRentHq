@@ -7,7 +7,6 @@ import { EscrowRole } from '@/lib/evm/roles'
 interface EscrowFinancialsProps {
   rentAmount: bigint | undefined
   agentFee: bigint | undefined
-  cautionDeposit: bigint | undefined
   occupancyTimestamp: bigint | undefined
   role?: EscrowRole
 }
@@ -19,7 +18,7 @@ export function formatMusdcDisplay(amountInMusdc: bigint | undefined) {
   const musdc = formatUnits(amountInMusdc, 6)
   const amountInNaira = (amountInMusdc * MUSDC_TO_NAIRA_RATE) / 1_000_000n
   const naira = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(Number(amountInNaira))
-  
+
   return (
     <div className="flex flex-col items-end">
       <span>{musdc} mUSDC</span>
@@ -28,13 +27,13 @@ export function formatMusdcDisplay(amountInMusdc: bigint | undefined) {
   )
 }
 
-export default function EscrowFinancials({ rentAmount, agentFee, cautionDeposit, occupancyTimestamp, role = 'NONE' }: EscrowFinancialsProps) {
-  const total = (rentAmount || 0n) + (agentFee || 0n) + (cautionDeposit || 0n)
+export default function EscrowFinancials({ rentAmount, agentFee, occupancyTimestamp, role = 'NONE' }: EscrowFinancialsProps) {
+  const total = (rentAmount || 0n) + (agentFee || 0n)
 
   return (
     <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 md:p-8 flex flex-col gap-6">
       <h3 className="font-headline-md text-primary">Financial Summary</h3>
-      
+
       <div className="flex flex-col gap-4 font-data-tabular">
         <div className="flex justify-between items-center text-on-surface">
           <span className="text-on-surface-variant font-body-md flex items-center gap-2">
@@ -50,16 +49,10 @@ export default function EscrowFinancials({ rentAmount, agentFee, cautionDeposit,
           </span>
           <div className="text-lg">{formatMusdcDisplay(agentFee)}</div>
         </div>
-        <div className="flex justify-between items-center text-on-surface">
-          <span className="text-on-surface-variant font-body-md flex items-center gap-2">
-            Caution Deposit
-            {role === 'TENANT' && <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full uppercase tracking-wider">Refundable to You</span>}
-          </span>
-          <div className="text-lg">{formatMusdcDisplay(cautionDeposit)}</div>
-        </div>
-        
+
+
         <div className="h-px w-full bg-outline-variant/30 my-2" />
-        
+
         <div className="flex justify-between items-center text-primary font-bold">
           <span className="font-body-md">Total Secured</span>
           <div className="text-xl">{formatMusdcDisplay(total)}</div>
