@@ -10,6 +10,12 @@ import { useWallet } from "@/hooks/useWallet";
 export default function Navbar() {
   const { isConnected } = useWallet();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -49,7 +55,7 @@ export default function Navbar() {
             <Link href="#" className="font-body-md text-on-surface-variant hover:text-primary transition-colors py-2 px-1">
               How it Works
             </Link>
-            {isConnected && (
+            {isMounted && isConnected && (
               <Link href="/dashboard" className="font-body-md text-primary font-medium border-b-2 border-primary py-2 px-1">
                 Dashboard
               </Link>
@@ -107,7 +113,7 @@ export default function Navbar() {
           >
             How it Works
           </Link>
-          {isConnected && (
+          {isMounted && isConnected && (
             <Link 
               href="/dashboard" 
               className="font-body-lg text-primary font-medium border-b border-primary/20 pb-4"
