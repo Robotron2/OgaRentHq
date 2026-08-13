@@ -5,13 +5,18 @@ import { Address } from 'viem'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useWallet } from '@/hooks/useWallet'
 import { useUserEscrows } from '@/hooks/useFactory'
+import { useMultipleEscrowDetails } from '@/hooks/useEscrow'
 import EscrowList from './EscrowList/EscrowList'
 import EscrowDetailView from './EscrowDetailView'
-import CreateEscrowModal from './CreateEscrowModal'
+import DashboardHeader from './DashboardHeader'
+import DashboardOverview from './DashboardOverview'
 
 export default function EscrowDashboard() {
   const { address } = useWallet()
-  const { data: escrows, isLoading: isFactoryLoading } = useUserEscrows(address)
+  const { data: escrowAddresses, isLoading: isFactoryLoading } = useUserEscrows(address)
+  
+  const { escrows, isLoading: isDetailsLoading } = useMultipleEscrowDetails(escrowAddresses || [])
+  const isLoading = isFactoryLoading || (escrowAddresses && escrowAddresses.length > 0 && isDetailsLoading)
   
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -30,11 +35,11 @@ export default function EscrowDashboard() {
     }
   }, [searchParams, selectedEscrow, router, pathname])
   
-  if (isFactoryLoading) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="font-body-md text-on-surface-variant">Discovering your escrows...</p>
+        <p className="font-body-md text-on-surface-variant">Loading your dashboard...</p>
       </div>
     )
   }
@@ -54,9 +59,15 @@ export default function EscrowDashboard() {
   }
 
   return (
-    <div className="pb-20 relative">
+    <div className="pb-20 relative max-w-6xl mx-auto">
+      <DashboardHeader address={address} />
+      
+      {escrows.length > 0 && (
+        <DashboardOverview escrows={escrows} />
+      )}
+
       <EscrowList 
-        escrows={escrows || []} 
+        escrows={escrowAddresses || []} 
         onSelect={(addr) => setSelectedEscrow(addr)}
       />
     </div>
