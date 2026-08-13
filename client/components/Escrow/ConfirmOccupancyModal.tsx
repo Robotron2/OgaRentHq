@@ -8,10 +8,11 @@ import { X, Loader2, CheckCircle2, AlertCircle, KeyRound } from 'lucide-react'
 interface ConfirmOccupancyModalProps {
   isOpen: boolean
   onClose: () => void
+  onSuccess?: () => void
   escrowAddress: Address
 }
 
-export default function ConfirmOccupancyModal({ isOpen, onClose, escrowAddress }: ConfirmOccupancyModalProps) {
+export default function ConfirmOccupancyModal({ isOpen, onClose, onSuccess, escrowAddress }: ConfirmOccupancyModalProps) {
   const {
     executeAction,
     isConfirming,
@@ -27,10 +28,11 @@ export default function ConfirmOccupancyModal({ isOpen, onClose, escrowAddress }
 
   useEffect(() => {
     if (isTxSuccess) {
+      if (onSuccess) onSuccess()
       const timer = setTimeout(() => onClose(), 3000)
       return () => clearTimeout(timer)
     }
-  }, [isTxSuccess, onClose])
+  }, [isTxSuccess, onClose, onSuccess])
 
   if (!isOpen) return null
 
@@ -44,7 +46,7 @@ export default function ConfirmOccupancyModal({ isOpen, onClose, escrowAddress }
     <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center bg-black/40 backdrop-blur-sm p-4">
       <div className="bg-surface w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-200">
         <div className="p-6 border-b border-outline-variant/30 flex justify-between items-center bg-white">
-          <h2 className="font-headline-md text-primary">Confirm Move-in</h2>
+          <h2 className="font-headline-md text-primary">Complete Agreement</h2>
           <button onClick={onClose} className="p-2 -mr-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors" disabled={isLoading}>
             <X size={20} />
           </button>
@@ -56,7 +58,7 @@ export default function ConfirmOccupancyModal({ isOpen, onClose, escrowAddress }
               <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-2">
                 <CheckCircle2 size={32} />
               </div>
-              <h3 className="font-headline-md text-primary">Occupancy Confirmed!</h3>
+              <h3 className="font-headline-md text-primary">Agreement Completed!</h3>
               <p className="font-body-md text-on-surface-variant">The landlord has been paid and your lease is now active. Your caution deposit is locked securely.</p>
             </div>
           ) : (
@@ -66,7 +68,7 @@ export default function ConfirmOccupancyModal({ isOpen, onClose, escrowAddress }
                   <KeyRound size={24} />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <h3 className="font-label-caps text-base font-bold text-on-surface">Have you received the keys?</h3>
+                  <h3 className="font-label-caps text-base font-bold text-on-surface">Complete Escrow Agreement?</h3>
                   <p className="font-body-md text-sm text-on-surface-variant">
                     By confirming, you authorize OgaRent to release the rent to the landlord and the fee to the agent.
                   </p>
@@ -86,7 +88,7 @@ export default function ConfirmOccupancyModal({ isOpen, onClose, escrowAddress }
                 className="w-full py-4 rounded-xl bg-primary text-on-primary font-label-caps font-bold hover:bg-primary-container transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading && <Loader2 size={18} className="animate-spin" />}
-                {isConfirming ? 'Confirm in Wallet...' : isTxPending ? 'Processing...' : "Yes, I've Received Keys"}
+                {isConfirming ? 'Confirm in Wallet...' : isTxPending ? 'Processing...' : "Complete Escrow Agreement"}
               </button>
             </>
           )}

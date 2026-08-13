@@ -72,7 +72,7 @@ export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetail
         
         <div className="lg:col-span-1">
           <div className="sticky top-32 z-10">
-            <EscrowActionPanel state={state} role={role} escrowAddress={escrowAddress} totalAmount={totalAmount} />
+            <EscrowActionPanel state={state} role={role} escrowAddress={escrowAddress} totalAmount={totalAmount} onRefetch={refetch} />
           </div>
         </div>
       </div>

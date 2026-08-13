@@ -7,7 +7,7 @@ import { useState } from 'react'
 import DepositModal from './DepositModal'
 import ConfirmOccupancyModal from './ConfirmOccupancyModal'
 import RaiseDisputeModal from './RaiseDisputeModal'
-import { useEscrowWrite } from '@/hooks/useEscrowWrite'
+
 import { EscrowRole } from '@/lib/evm/roles'
 
 interface ActionPanelProps {
@@ -15,15 +15,16 @@ interface ActionPanelProps {
   role?: EscrowRole
   escrowAddress: Address
   totalAmount?: bigint
+  onRefetch?: () => void
 }
 
-export default function EscrowActionPanel({ state, role = 'NONE', escrowAddress, totalAmount = 0n }: ActionPanelProps) {
+export default function EscrowActionPanel({ state, role = 'NONE', escrowAddress, totalAmount = 0n, onRefetch }: ActionPanelProps) {
   const stateStr = state !== undefined ? stateMap[state] : undefined
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
   const [isConfirmOccupancyModalOpen, setIsConfirmOccupancyModalOpen] = useState(false)
   const [isRaiseDisputeModalOpen, setIsRaiseDisputeModalOpen] = useState(false)
   
-  const { executeAction, isTxPending: isClaimPending } = useEscrowWrite()
+
 
   let statusTitle = "Loading..."
   let ctaLabel = "Loading..."
@@ -36,7 +37,7 @@ export default function EscrowActionPanel({ state, role = 'NONE', escrowAddress,
         break
       case 'Funded':
         statusTitle = "Payment Secured"
-        ctaLabel = "Confirm I've Received Keys"
+        ctaLabel = "Complete Escrow Agreement"
         break
       case 'Occupied':
         statusTitle = "Lease Active"
@@ -80,15 +81,6 @@ export default function EscrowActionPanel({ state, role = 'NONE', escrowAddress,
            ctaLabel}
         </button>
 
-        {stateStr === 'Occupied' && role === 'TENANT' && (
-          <button 
-            onClick={() => executeAction(escrowAddress, 'claimCaution')}
-            disabled={isClaimPending}
-            className={`w-full py-4 rounded-xl font-headline-sm font-bold transition-all shadow-lg bg-primary text-on-primary hover:bg-primary/90 shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            {isClaimPending ? 'Claiming...' : 'Claim Caution Deposit'}
-          </button>
-        )}
 
         {stateStr && ['Funded', 'Occupied'].includes(stateStr) && (
           <button 
@@ -122,6 +114,7 @@ export default function EscrowActionPanel({ state, role = 'NONE', escrowAddress,
       <ConfirmOccupancyModal
         isOpen={isConfirmOccupancyModalOpen}
         onClose={() => setIsConfirmOccupancyModalOpen(false)}
+        onSuccess={onRefetch}
         escrowAddress={escrowAddress}
       />
 

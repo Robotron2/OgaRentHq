@@ -2,7 +2,7 @@ import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { OgaRentEscrowABI } from '@/lib/evm/abis'
 import { Address } from 'viem'
 
-export type EscrowAction = 'deposit' | 'confirmOccupancy' | 'raiseDispute' | 'claimCaution'
+export type EscrowAction = 'deposit' | 'confirmOccupancy' | 'raiseDispute'
 
 export function useEscrowWrite() {
   const { writeContract, data: hash, isPending: isConfirming, isError, error, reset } = useWriteContract()
