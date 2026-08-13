@@ -2,6 +2,7 @@ import { Address } from 'viem'
 import { useEscrowDetails } from '@/hooks/useEscrow'
 import { formatUnits } from 'viem'
 import { Building2, ArrowRight } from 'lucide-react'
+import { properties } from '@/data/properties'
 
 interface EscrowCardProps {
   escrowAddress: Address
@@ -25,6 +26,10 @@ export default function EscrowCard({ escrowAddress, onClick }: EscrowCardProps) 
   const states = ['Created', 'Funded', 'Occupied', 'Disputed', 'Completed']
   const stateStr = state !== undefined ? states[state] : 'Unknown'
 
+  const property = properties.find(
+    p => p.landlordAddress.toLowerCase() === config.landlord.toLowerCase() && p.rentAmount === config.rentAmount
+  )
+
   return (
     <div 
       onClick={onClick}
@@ -36,8 +41,8 @@ export default function EscrowCard({ escrowAddress, onClick }: EscrowCardProps) 
             <Building2 size={20} />
           </div>
           <div>
-            <span className="font-label-caps text-[10px] text-on-surface-variant/70 uppercase tracking-wider block">Your Role</span>
-            <span className="font-body-md font-medium text-primary">{role}</span>
+            <span className="font-label-caps text-[10px] text-on-surface-variant/70 uppercase tracking-wider block">Your Role: {role}</span>
+            <span className="font-body-md font-medium text-primary line-clamp-1">{property ? property.title : 'Rental Agreement'}</span>
           </div>
         </div>
         <div className="bg-surface-container-high px-3 py-1 rounded-full text-xs font-medium text-on-surface shrink-0">
