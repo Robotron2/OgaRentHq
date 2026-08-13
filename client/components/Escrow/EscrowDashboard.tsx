@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Address } from 'viem'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useWallet } from '@/hooks/useWallet'
 import { useUserEscrows } from '@/hooks/useFactory'
 import EscrowList from './EscrowList/EscrowList'
@@ -12,7 +13,22 @@ export default function EscrowDashboard() {
   const { address } = useWallet()
   const { data: escrows, isLoading: isFactoryLoading } = useUserEscrows(address)
   
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  
   const [selectedEscrow, setSelectedEscrow] = useState<Address | undefined>(undefined)
+
+  useEffect(() => {
+    const escrowParam = searchParams.get('escrow') as Address | null
+    if (escrowParam && !selectedEscrow) {
+      setSelectedEscrow(escrowParam)
+      const newSearchParams = new URLSearchParams(searchParams.toString())
+      newSearchParams.delete('escrow')
+      const newUrl = `${pathname}${newSearchParams.toString() ? `?${newSearchParams.toString()}` : ''}`
+      router.replace(newUrl, { scroll: false })
+    }
+  }, [searchParams, selectedEscrow, router, pathname])
   
   if (isFactoryLoading) {
     return (
