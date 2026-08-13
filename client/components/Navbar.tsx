@@ -46,7 +46,7 @@ export default function Navbar() {
           
           {/* Desktop Nav Links */}
           <div className="hidden lg:flex gap-8 items-center">
-            <Link href="#" className="font-body-md text-on-surface-variant hover:text-primary transition-colors py-2 px-1">
+            <Link href="/how-it-works" className="font-body-md text-on-surface-variant hover:text-primary transition-colors py-2 px-1">
               How it Works
             </Link>
             {isMounted && isConnected && (
@@ -87,7 +87,7 @@ export default function Navbar() {
       >
         <div className="flex flex-col gap-6 text-lg">
           <Link 
-            href="#" 
+            href="/how-it-works" 
             className="font-body-lg text-on-surface-variant font-medium border-b border-outline-variant/20 pb-4"
             onClick={() => setIsMobileMenuOpen(false)}
           >
