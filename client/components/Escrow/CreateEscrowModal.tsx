@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Address } from 'viem'
 import { useCreateEscrow } from '@/hooks/useFactoryWrite'
 import { useWallet } from '@/hooks/useWallet'
@@ -15,7 +15,7 @@ interface CreateEscrowModalProps {
 }
 
 export default function CreateEscrowModal({ property, onClose }: CreateEscrowModalProps) {
-  const { address: userAddress } = useWallet()
+  const { address: userAddress, isWrongNetwork, switchNetwork } = useWallet()
   const { createEscrow, isPending, isSuccess, error } = useCreateEscrow()
   const router = useRouter()
 
@@ -27,6 +27,12 @@ export default function CreateEscrowModal({ property, onClose }: CreateEscrowMod
 
     if (!userAddress) {
       setValidationError('Please connect your wallet first.')
+      return
+    }
+
+    if (isWrongNetwork) {
+      if (switchNetwork) switchNetwork()
+      setValidationError('Please switch to the BOT Chain testnet.')
       return
     }
 
@@ -45,11 +51,17 @@ export default function CreateEscrowModal({ property, onClose }: CreateEscrowMod
     }
   }
 
+  useEffect(() => {
+    if (isSuccess) {
+      const timer = setTimeout(() => {
+        onClose()
+        router.push('/dashboard')
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [isSuccess, onClose, router])
+
   if (isSuccess) {
-    setTimeout(() => {
-      onClose()
-      router.push('/dashboard')
-    }, 2000)
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center animate-in zoom-in-95">
@@ -104,8 +116,12 @@ export default function CreateEscrowModal({ property, onClose }: CreateEscrowMod
           </div>
 
           {(validationError || error) && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 mt-2 text-left">
-              {validationError || (error?.message?.includes('User rejected') ? 'Transaction rejected' : 'Transaction failed')}
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 mt-2 text-left max-h-32 overflow-y-auto">
+              {validationError || 
+                (error?.message?.includes('User rejected') 
+                  ? 'Transaction rejected by user' 
+                  : (error as any)?.shortMessage || error?.message || 'Transaction failed')
+              }
             </div>
           )}
 
