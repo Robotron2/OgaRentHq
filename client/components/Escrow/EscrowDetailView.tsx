@@ -6,7 +6,7 @@ import EscrowTimeline from './EscrowTimeline'
 import EscrowFinancials from './EscrowFinancials'
 import EscrowActionPanel from './EscrowActionPanel'
 import Image from 'next/image'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { properties } from '@/data/properties'
 
 interface EscrowDetailViewProps {
@@ -52,7 +52,15 @@ export default function EscrowDetailView({ escrowAddress, onBack }: EscrowDetail
         <div className="absolute bottom-0 left-0 p-8 text-white w-full">
           <h1 className="font-display-lg drop-shadow-md text-white">{property ? property.title : 'Agreement Details'}</h1>
           <div className="flex items-center gap-4 mt-2">
-            <p className="font-mono text-xs opacity-90 bg-white/20 backdrop-blur-md w-fit px-3 py-1 rounded-full border border-white/20 shadow-sm">{escrowAddress}</p>
+            <a
+              href={`https://scan.bohr.life/address/${escrowAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-xs opacity-90 bg-white/20 backdrop-blur-md w-fit px-3 py-1 rounded-full border border-white/20 shadow-sm hover:bg-white/30 transition-colors flex items-center gap-1.5"
+            >
+              {escrowAddress.slice(0, 8)}...{escrowAddress.slice(-6)}
+              <ExternalLink size={10} className="opacity-70" />
+            </a>
             {property && <span className="text-xs bg-primary text-white px-3 py-1 rounded-full shadow-sm font-bold tracking-wider">VERIFIED PROPERTY</span>}
           </div>
         </div>

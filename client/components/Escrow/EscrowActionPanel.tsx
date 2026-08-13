@@ -2,7 +2,7 @@
 
 import { stateMap } from './EscrowTimeline'
 import { Address } from 'viem'
-import { Info } from 'lucide-react'
+import { Info, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
 import DepositModal from './DepositModal'
 import ConfirmOccupancyModal from './ConfirmOccupancyModal'
@@ -97,9 +97,15 @@ export default function EscrowActionPanel({ state, role = 'NONE', escrowAddress,
           <Info size={16} className="mt-0.5 shrink-0" />
           <div className="flex flex-col gap-1">
             <span className="font-bold">Transaction Details</span>
-            <span className="font-data-tabular opacity-80 break-all text-xs">
-              Escrow: {escrowAddress}
-            </span>
+            <a
+              href={`https://scan.bohr.life/address/${escrowAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-data-tabular opacity-80 break-all text-xs hover:opacity-100 hover:text-primary transition-colors flex items-center gap-1 w-fit"
+            >
+              {escrowAddress}
+              <ExternalLink size={11} className="shrink-0" />
+            </a>
           </div>
         </div>
       </div>
