@@ -1,6 +1,6 @@
 -include .env
 
-.PHONY: all test clean build deploy-testnet verify-testnet deploy-mainnet
+.PHONY: all test clean build deploy-testnet verify-testnet deploy-mainnet verify-mainnet
 
 all: clean build test
 
@@ -40,4 +40,15 @@ deploy-mainnet:
 	forge script script/Deploy.s.sol:Deploy \
 		--rpc-url $(RPC_BOT_MAINNET) \
 		--broadcast \
+		-vvvv
+
+# Deploy and verify to BOT Chain Mainnet
+# Requires BOTSCAN_API_KEY in .env
+verify-mainnet:
+	forge script script/Deploy.s.sol:Deploy \
+		--rpc-url $(RPC_BOT_MAINNET) \
+		--broadcast \
+		--verify \
+		--verifier blockscout \
+		--verifier-url https://scan.botchain.ai/api/ \
 		-vvvv
