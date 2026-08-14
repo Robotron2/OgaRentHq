@@ -57,7 +57,6 @@ export default function EscrowDashboard() {
   }
 
   const activeEscrow = escrows.find(e => e.state !== undefined && e.state < 3 && e.role !== 'NONE') || (escrows.length > 0 ? escrows[0] : undefined)
-  const remainingEscrows = escrows.filter(e => e.address !== activeEscrow?.address)
 
   if (escrows.length === 0 && !selectedEscrow) {
     return (
@@ -83,9 +82,9 @@ export default function EscrowDashboard() {
         />
       )}
 
-      {remainingEscrows.length > 0 && (
+      {escrows.length > 0 && (
         <EscrowList 
-          escrows={remainingEscrows} 
+          escrows={escrows} 
           onSelect={(addr) => setSelectedEscrow(addr as Address)}
         />
       )}

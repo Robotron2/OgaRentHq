@@ -38,7 +38,7 @@ export default function EscrowList({ escrows, onSelect }: EscrowListProps) {
 
   const filteredEscrows = escrows.filter(e => {
     if (filter === 'Active') return e.state !== undefined && e.state < 3
-    if (filter === 'Occupied') return e.state === 2
+    if (filter === 'Occupied') return e.state === 2 || e.state === 4
     if (filter === 'Disputed') return e.state === 3
     return true
   })
@@ -47,7 +47,7 @@ export default function EscrowList({ escrows, onSelect }: EscrowListProps) {
     <div className="flex flex-col gap-6 animate-in fade-in duration-300">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b border-outline-variant/30 pb-4">
         <div className="flex items-center gap-4">
-          <h2 className="font-headline-sm text-primary font-bold whitespace-nowrap">Other Agreements</h2>
+          <h2 className="font-headline-sm text-primary font-bold whitespace-nowrap">Agreements</h2>
           <div className="h-4 w-px bg-outline-variant/40 hidden sm:block" />
           <AgreementFilters currentFilter={filter} onFilterChange={setFilter} />
         </div>
